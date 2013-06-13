@@ -1,0 +1,15 @@
+<?php
+/** this invoice displays payment receipt and has one button to confirm payment */
+$title = ___("Confirm Payment");
+$this->setLayout('layout.phtml');
+if (empty($btnText)) $btnText = ___("Make Payment");
+
+include $this->_script('_receipt.phtml');
+?>
+<br />
+<div class="make-payment-button">
+<form method="post" action="<?php echo $this->escape($url); ?>">
+<input type="submit" name="do" value="<?php echo $btnText ?>" />
+<?php if (!empty($hidden)) echo Am_Controller::renderArrayAsInputHiddens($hidden); ?>
+</form>
+</div>

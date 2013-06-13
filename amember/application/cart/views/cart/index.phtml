@@ -1,0 +1,12 @@
+<?php
+$title= $di->config->get('site_title') . ( $category ? (' : ' . $category->title) : '');
+$this->setLayout('cart/layout.phtml');
+?>
+
+<div id="products">
+<?php 
+foreach ($products as $product)
+    include $this->_script('cart/_product.phtml'); 
+?>
+<?php echo $paginator->render(); ?>
+</div>

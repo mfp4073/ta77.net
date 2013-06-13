@@ -1,0 +1,25 @@
+<?php
+$u = $this->user ? $this->user : Am_Di::getInstance()->user;
+$checked = $u->unsubscribed ? 'checked="checked"' : '';
+?>
+<label for="checkbox-unsubscribed">
+    <input type="checkbox" name="unsubscribed" id="checkbox-unsubscribed" value="1" <?php echo $checked ?> />
+    <?php __e("Unsubscribe from all e-mail messages") ?>
+</label>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $("#checkbox-unsubscribed").change(function(){
+        var vars = {
+            'unsubscribed' : (this.checked ? 1 : 0)
+        };
+        <?php if (!empty($this->s) && !empty($this->e)): ?>
+        vars.s = "<?php j($this->s); ?>";
+        vars.e = "<?php j($this->e); ?>";
+        <?php endif // end of unsubscribe-without-login code ?>
+        $.post(window.rootUrl + "/ajax/unsubscribed", vars, function(){
+            $('#unsubscribe-confirm').fadeIn();
+            setTimeout(function(){$('#unsubscribe-confirm').fadeOut()}, 2000);
+        });
+    });
+});
+</script>

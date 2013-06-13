@@ -1,0 +1,9 @@
+<?php $title=___('Change Password error'); $this->setLayout('layout.phtml'); ?>
+<?php include $this->_script('_error.phtml'); ?>
+
+<strong><?php __e('The information you have entered is incorrect') ?></strong><br />
+<?php echo $message ?>
+<br />
+<br />
+<a href="<?php p($login_page) ?>"><?php __e('Return and try again') ?></a>
+

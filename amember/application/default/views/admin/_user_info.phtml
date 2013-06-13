@@ -1,0 +1,18 @@
+<?php
+    $request = Zend_Controller_Front::getInstance()->getRequest();
+    $user_id = $request->getInt('user_id');
+    if(!$user_id) $user_id = $request->getInt('_u_id');
+    if(!$user_id) return;
+    $user = Am_Di::getInstance()->userTable->load($user_id, false);
+    if(!$user) return;
+?>
+
+<div class="info">
+    <?php 
+    printf("%s#: <b>%d</b>, %s: <b>%s</b>, %s: <b>%s</b>, %s: <a href='mailto:%s'><b>%s</b></a>",   ___('User'), $user->user_id, 
+                                                                            ___('Login'), $user->login,
+                                                                            ___('Name'), $user->name_f." ".$user->name_l,
+                                                                            ___('Email'),$user->email, $user->email
+            ); 
+    ?>
+</div>

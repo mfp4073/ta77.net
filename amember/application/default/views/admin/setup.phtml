@@ -1,0 +1,16 @@
+<?php
+$this->layoutNoTitle = true;
+$title = "Setup/Configuration : ";
+$this->setLayout('admin/layout.phtml');
+?>
+<div class="notebook-wrapper">
+<table class="notebook">
+<?php echo $pages ?>
+</table>
+</div>
+
+<h1><?php echo $title ?> : <?php p($pageObj->getTitle()) ?></h1>
+<?php if ($pageObj->getComment()) : ?>
+<p><?php p($pageObj->getComment()) ?></p>
+<?php endif; ?>
+<?php include $this->_script('admin/_form.phtml') ?>

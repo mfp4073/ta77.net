@@ -1,0 +1,26 @@
+<?php
+$title= $di->config->get('site_title') . ' : ' . ___("Choose Payment System");
+$this->setLayout('cart/layout.phtml');
+$isBasket = false;
+include $this->_script('cart/_basket.phtml');
+?>
+<br />
+<div id="wrapper">
+    <div class="block" id="paysystems-select" style="text-align: left;">
+    <form method="post" action="<?php $this->pUrl(null, 'choose-paysys', null) ?>">
+        <?php foreach ($paysystems as $ps): ?>
+        <div class="paysys-item">
+            <label for="ps-<?php p($ps->getId())?>">
+                <input type="radio" name="paysys_id" id="ps-<?php p($ps->getId())?>" value="<?php p($ps->getId())?>" />
+                <strong><?php echo $ps->getTitle() ?></strong>
+                <small><?php echo $ps->getDescription() ?></small>
+            </label>
+        </div>
+        <?php endforeach ?>
+        <?php echo Am_Controller::renderArrayAsInputHiddens($_REQUEST); ?>
+        <input type="button" value="<?php __e("Edit Your Cart") ?>" onclick="window.location.href='<?php p(REL_ROOT_URL . '/cart/index/view-basket') ?>'"/>
+        <input type="hidden" name="a" value="choose-paysys" />
+        <input type="submit" value="<?php __e("Proceed to Checkout") ?>" />
+    </form>
+    </div>
+</div>

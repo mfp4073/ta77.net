@@ -1,0 +1,44 @@
+<h1><?php __e('Generate Report') ?></h1>
+<div class="reports">
+<select id="report" size="1">
+    <option value=''><?php echo '-- ';__e('Select option');echo ' --'?></option>
+<?php $id=0; foreach ($reports as $r): $id++; ?>
+    <option value="<?php echo $r->getId()?>"><?php p($r->getTitle())?>
+    <?php if ($d = $r->getDescription()): p(' - ' . $r->getDescription()); endif ?>
+    </option>
+<?php endforeach ; ?>
+</select>
+</div>
+<br />
+<div class="forms">
+<?php foreach ($reports as $r): ?>
+<div id="form-<?php echo $r->getId()?>" class="formdiv" style="display:none">
+<h2><?php echo $r->getTitle()?></h2>
+<?php
+echo $r->getForm();
+?>
+</div>
+<?php endforeach ?>
+</div>
+
+<style type="text/css">
+<!--
+    .reports {
+        text-align: left; width: 60%;
+    }
+    .forms {
+        text-align: left; width: 60%; 
+    }
+-->
+</style>
+<script type="text/javascript">
+$(function(){
+    $("select#report").change(function()
+    {
+        $("div.line").removeClass('line_selected');
+        $(this).parents("div.line").addClass('line_selected');
+        $(".formdiv").hide();
+        $("#form-"+this.value).show();
+    });
+});
+</script>

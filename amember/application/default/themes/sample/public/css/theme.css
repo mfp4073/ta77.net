@@ -1,0 +1,13 @@
+/** 
+    This CSS file is included into <head> of each user template after amember.css
+    and before site.css (if it is exists).
+
+    There you can see variable %bgcolor% - it is configured in setup form 
+    (see application/default/themes/sample/Theme.php) and now substituted here.
+    Files with variables must be added to special list ($publicWithVars) of Am_Theme
+    class and these files are routed via special URL. Routed via URL, it is cached
+    in browser for 1 hour.
+
+    @link Am_View->printLayoutHead()
+*/
+body { font-size: 16pt; background-color: %bgcolor%; }

@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
+        <title><?php p(strip_tags($title)) ?></title>
+        <?php
+        $admin_logged_in = Am_Di::getInstance()->authAdmin->getUserId() > 0;
+        $admin_login     = Am_Di::getInstance()->authAdmin->getUsername();
+        $this->adminHeadInit();
+        echo $this->headLink() . "\n";
+        echo $this->headStyle() . "\n";
+        echo $this->headScript() . "\n";
+        ?>
+    </head>
+    <body>
+        <div class="layout login">
+            <a name="top"></a>
+            <div id="header">
+                <div class="logo-block">
+                    <a href="<?php echo REL_ROOT_URL ?>/admin/">
+                        <img src="<?php echo $this->_scriptImg('admin/header-logo.png') ?>" width="118" height="15" alt="aMember Pro" />
+                    </a>
+                </div>
+            </div>
+            <div class="layout-one-coll">
+                <div class="coll-right">
+                    <div class="spacer-first"></div>
+                    <div class="spacer-second"></div>
+                    <div class="content">
+                        <!-- content starts here -->
+                        <?php echo $content ?>
+                        <!-- content ends here -->
+                    </div>
+                </div>
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div id="footer">
+            <div class="footer-content">
+                <div class="footer-actions">
+                    <a href="#top"><img src="<?php echo $this->_scriptImg('admin/top.png') ?>" /></a>
+                </div>
+                &nbsp;
+            </div>
+        </div>
+    </body>
+</html>

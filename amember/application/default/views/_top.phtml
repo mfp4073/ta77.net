@@ -1,0 +1,16 @@
+<?php if (!defined('AM_ADMIN') || !AM_ADMIN): ?>
+<?php if (empty($this->layoutNoLang)) include $this->_script('_lang-choice.phtml'); ?>
+<?php if (empty($this->layoutNoMenu)): ?>
+<?php $user = Am_Di::getInstance()->auth->getUser(); ?>
+<?php if ($user && empty($this->noUserIdentityBlock)) : ?>
+<div class="am-user-identity-block">
+    <?php __e('Logged in as %s', $user->login) ?>. <a href="<?php echo REL_ROOT_URL?>/login/logout"><?php __e('Logout')?></a>
+</div>
+<?php endif; ?>
+<?php if ($user) : ?>
+    <?php include $this->_script('member/_menu.phtml'); ?>
+<?php endif; ?>
+<?php endif; ?>
+<?php endif; // layoutNoMenu ?>
+<?php include $this->_script('_msg.phtml'); ?>
+<?php echo $this->blocks('member/top') ?>

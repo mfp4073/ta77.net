@@ -1,0 +1,27 @@
+<?php $lastMessagesList = Am_Di::getInstance()->helpdeskMessageTable->selectLast($num); ?>
+<div class="admin-lastusers">
+    <h2><?php __e("Last %s Helpdesk Messages", $num); ?></h2>
+    <div class="grid-container">
+        <table class="grid">
+            <tr>
+                <th class="helper-corner-left"><?php __e('Date') ?></th>
+                <th><?php __e('User') ?></th>
+                <th class="helper-corner-right"><?php __e('Message') ?></th>
+            </tr>
+            <?php foreach ($lastMessagesList as $m): ?>
+            <tr<?php
+            if (@$rownum++% 2)
+            {
+            echo ' class="odd" ';
+            }
+            ?>>
+                <td><?php echo amDatetime($m->dattm) ?></td>
+                <td><?php p($m->name_f); p($m->name_l) ?>
+                    (<a target="_top" href="<?php p($this->userUrl($m->user_id)) ?>"><?php p($m->login) ?></a>)<br /></td>
+                
+                <td><a href="<?php echo REL_ROOT_URL . '/helpdesk/admin/p/view/view/ticket/' . $m->ticket_mask . "#helpdesk-message-" . $m->pk() ?>"><?php p(substr($m->content, 0, 200)) ?>&hellip;</a></td>
+            </tr>
+            <?php endforeach ?>
+        </table>
+    </div>
+</div>

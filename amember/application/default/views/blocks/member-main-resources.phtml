@@ -1,0 +1,20 @@
+<?php if ($resources): ?><!-- Customer have active subscriptions, display it if config allows  -->
+<ul id="member-resources">
+    <?php foreach ($resources as $r): if ($l = $r->renderLink()) : ?>
+    <li><?php echo $l; ?>
+        <div><?php echo @$r->desc;?></div>
+    </li>
+    <?php endif ; endforeach ?>
+</ul>
+<?php elseif (!$member_products): // Customer doesn't have any active subscriptions ?>
+    <h3><?php __e('You have no active subscriptions') ?></h3>
+    <?php __e('Please use %sAdd/Renew subscription%s form','<i>','</i>') ?><br />
+    <?php __e('to order or renew subscription.') ?><br />
+<?php endif ?>
+<?php if ($left_member_links):?><ul>
+<?php foreach ($left_member_links as $u=>$t): ?>
+    <li> <a href="<?php p($u) ?>"><?php echo $t ?></a></li>
+<?php endforeach ?>
+</ul>
+<!-- end of display links to protected areas for customer -->
+<?php endif ?>

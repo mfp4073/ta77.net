@@ -1,0 +1,268 @@
+<?php $this->layoutNoTitle = true ?>
+<h1><?php __e('Conversation') ?> (<a href="<?php p($strategy->assembleUrl(array())) ?>"><?php __e('return') ?></a>)</h1>
+<div class="helpdesk">
+    <?php if ($strategy instanceof Am_Helpdesk_Strategy_Admin) : ?>
+    <div class="helpdesk-history">
+        <div class="helpdesk-history-title">
+            <div class="helpdesk-history-title-action"><a href="javascript:;">Requester History</a></div>
+            <div class="helpdesk-history-user">
+                <strong><a href='<?php p($this->userUrl($user->user_id));?>'><?php p($user->login) ?></a> (<?php p($user->getName()) ?>)</strong>
+            </div>
+        </div>
+        <div class="helpdesk-history-content">
+            <?php echo $historyGrid ?>
+        </div>
+    </div>
+    <?php endif; ?>
+    <div class="ticket" id="helpdesk-ticket-<?php echo $ticket->ticket_id ?>">
+        <div class="status">
+            <?php
+            if ($strategy instanceof Am_Helpdesk_Strategy_Admin) {
+                include $this->_script($strategy->getTemplatePath() . '/_select-status-form.phtml');
+            }
+            ?>
+        </div>
+        <h3><?php p($ticket->subject) ?> <span class="ticketMask">#<?php p($ticket->ticket_mask) ?></span>
+            <?php if ($category) : ?>
+            <span class="ticketCategory"><?php p($category->title) ?></span>
+            <?php endif; ?>
+            <span class="ticketDate"><?php p(amDatetime($ticket->created)) ?></span>
+        </h3>
+        <?php if ($ticket->owner_id && $strategy->canViewOwner($ticket)) : ?>
+        <?php $owner = $ticket->getOwner() ?>
+        <p>Owner: <?php p($owner->login) ?> (<?php p($owner->name_f) ?> <?php p($owner->name_l) ?>) </p>
+        <?php endif; ?>
+        <div class="clear"></div>
+        <div class="actions-conteiner">
+        <div class="actions">
+            <?php if ($strategy instanceof Am_Helpdesk_Strategy_Admin) : ?>
+            <div><a href="<?php
+            echo $strategy->assembleUrl(array(
+                'page_id' => 'view',
+                'action' => 'reply',
+                'ticket_id' => $ticket->ticket_id,
+                'type' => 'comment'
+            ), 'inside-pages')
+            ?>" class="a-reply"><?php __e('Comment') ?></a></div>
+            <?php endif; ?>
+            <div><a href="<?php
+            echo $strategy->assembleUrl(array(
+                'page_id' => 'view',
+                'action' => 'reply',
+                'ticket_id' => $ticket->ticket_id
+            ), 'inside-pages')
+            ?>" class="a-reply"><?php __e('Reply') ?></a></div>
+            <?php if ($ticket->status == HelpdeskTicket::STATUS_CLOSED) : ?>
+                <div><a href="<?php
+            echo $strategy->assembleUrl(array(
+                'page_id' => 'view',
+                'action' => 'changestatus',
+                'ticket' => $ticket->ticket_mask,
+                'status' => HelpdeskTicket::STATUS_NEW
+            ), 'inside-pages')
+            ?>"><?php __e('Re-Open Ticket') ?></a></div>
+            <?php else : ?>
+                <div><a href="<?php
+            echo $strategy->assembleUrl(array(
+                'page_id' => 'view',
+                'action' => 'changestatus',
+                'ticket' => $ticket->ticket_mask,
+                'status' => HelpdeskTicket::STATUS_CLOSED
+            ), 'inside-pages')
+            ?>"><?php __e('Close Ticket') ?></a></div>
+            <?php endif; ?>
+            <?php if ($strategy->canEditOwner($ticket)) : ?>
+                <?php if ($ticket->owner_id && $ticket->owner_id == Am_Di::getInstance()->authAdmin->getUserId()) : ?>
+                    <div><a href="<?php
+                    echo $strategy->assembleUrl(array(
+                        'page_id' => 'view',
+                        'action' => 'surrender',
+                        'ticket' => $ticket->ticket_mask,
+                    ), 'inside-pages')
+                    ?>" title="<?php __e('Unassign this Ticket from yourself') ?>"><?php __e('Surrender') ?></a></div>
+                <?php elseif (!$ticket->owner_id): ?>
+                    <div><a href="<?php
+                    echo $strategy->assembleUrl(array(
+                        'page_id' => 'view',
+                        'action' => 'take',
+                        'ticket' => $ticket->ticket_mask,
+                    ), 'inside-pages')
+                    ?>" title="<?php __e('Assign this Ticket to yourself') ?>"><?php __e('Take') ?></a></div>
+                <? endif; ?>
+                <div><a href="javascript:;" class="tool-assign"><?php __e('Change Owner') ?></a></div>
+            <?php endif; ?>
+            <div><a href="<?php
+            echo $strategy->assembleUrl(array(
+                'page_id' => 'view',
+                'action' => 'view',
+                'ticket' => $ticket->ticket_mask,
+            ), 'inside-pages')
+            ?>"><?php __e('Refresh') ?></a></div>
+            <div class="right">[<a href="javascript:;" class="closeAll">&minus;</a>]</div>
+        </div>
+        <div class="reply">
+            <?php if ($strategy->canUseSnippets() || $strategy->canUseFaq()) : ?>
+            <div class="reply-tools">
+                <?php if ($strategy->canUseSnippets()): ?>
+                <div>
+                    <a href="javascript:;" class="reply-tool-snippets"><?php __e('Snippets') ?></a>
+                </div>
+                <?php endif; ?>
+                <?php if ($strategy->canUseFaq()): ?>
+                <div>
+                    <a href="javascript:;" class="reply-tool-faq"><?php __e('FAQ') ?></a>
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+            <div class="reply-content"></div>
+        </div>
+        </div>
+    </div>
+    <?php
+        foreach ($ticket->getMessages() as $message) {
+            include $this->_script($strategy->getTemplatePath() . '/_message.phtml');
+        }
+    ?>
+</div>
+<script>
+(function($){
+    $(function() {
+        $(".helpdesk .helpdesk-history-title-action a").click(function(){
+            $('.helpdesk-history-content').slideToggle();
+        })
+        $(".helpdesk a.a-reply").click(function(){
+            $(".helpdesk a.a-reply").parent().removeClass('active');
+            $(this).parent().addClass('active');
+
+            var reply = $(this).closest('.actions').siblings('.reply');
+            var replyContent = reply.find('.reply-content');
+
+            var buffer = '';
+            if (replyContent.html()!='') {
+                buffer = replyContent.find('textarea').attr('value');
+            }
+
+            $('.helpdesk .reply .reply-content').empty();
+            $('.helpdesk .reply').hide();
+            replyContent.load($(this).attr('href'), function(){
+                if (buffer) {
+                    $(this).find('textarea').attr('value', buffer);
+                }
+                reply.show();
+            })
+            .append('<img src="<?php echo REL_ROOT_URL ?>/application/default/views/public/img/ajax-loader.gif" />').show();
+
+            return false;
+        })
+
+        $(".helpdesk .status input[type=submit]").hide();
+        $(".helpdesk .status select").change(function(){
+            this.form.submit();
+        });
+
+        $('.helpdesk input[name=discard]').live('click', function(){
+           $(".helpdesk a.a-reply").parent().removeClass('active');
+           $(this).closest('.reply').hide();
+           $(this).closest('.reply-content').empty();
+        })
+
+        $(".helpdesk .close").click(function(){
+            var $message = $(this).closest('.header').next('.content');
+            var $messageConteiner = $(this).closest('.message');
+            if ($message.css('display')=='none') {
+                $(this).html('&minus;');
+                $message.show('slow');
+                $messageConteiner.removeClass('closed');
+            } else {
+                $(this).html('+');
+                $message.hide('slow');
+                $messageConteiner.addClass('closed');
+            }
+        })
+
+        $(".helpdesk .closeAll").click(function(){
+            var $messages = $('.helpdesk .content');
+            var $messageConteiners = $('.helpdesk .message');
+            if ($(this).hasClass('closed')) {
+                $(this).removeClass('closed');
+                $('.helpdesk .close').html('&minus;');
+                $(this).html('&minus;');
+                $messages.show('slow');
+                $messageConteiners.removeClass('closed');
+            } else {
+                $(this).addClass('closed');
+                $('.helpdesk .close').html('+');
+                $(this).html('+');
+                $messages.hide('slow');
+                $messageConteiners.addClass('closed');
+            }
+        })
+
+        $('.reply-tool-snippets').live('click', function(){
+            var $this = $(this);
+            var div = $('<div></div>');
+            div.load(window.rootUrl + '/helpdesk/admin/p/view/displaysnippets', {}, function(){
+                div.dialog({
+                    autoOpen: true,
+                    modal : true,
+                    title : "",
+                    width : 700,
+                    position : ['center', 'center']
+                });
+                div.find('.grid-wrap').bind('load', function() {
+                    $(this).find('a.insert-snippet').unbind().click(function(){
+                        var $target = $this.closest('div.reply').find('textarea[name=content]');
+                        $target.val($(this).data('snippet-content') + "\r\n" + $target.val());
+                        div.dialog('close');
+                    })
+                })
+            })
+        })
+        $('.reply-tool-faq').live('click', function(){
+            var $this = $(this);
+            var div = $('<div></div>');
+            div.load(window.rootUrl + '/helpdesk/admin/p/view/displayfaq', {}, function(){
+                div.dialog({
+                    autoOpen: true,
+                    modal : true,
+                    title : "",
+                    width : 700,
+                    position : ['center', 'center']
+                });
+                div.find('.grid-wrap').bind('load', function() {
+                    $(this).find('a.insert-faq').unbind().click(function(){
+                        var $target = $this.closest('div.reply').find('textarea[name=content]');
+                        $target.val($(this).data('faq-content') + "\r\n" + $target.val());
+                        div.dialog('close');
+                    })
+                })
+            })
+        })
+        $('.tool-assign').live('click', function(){
+            var $this = $(this);
+            var div = $('<div></div>');
+            div.load(window.rootUrl + '/helpdesk/admin/p/view/displayassign', {}, function(){
+                div.dialog({
+                    autoOpen: true,
+                    modal : true,
+                    title : "",
+                    width : 700,
+                    position : ['center', 'center']
+                });
+                div.find('.grid-wrap').bind('load', function() {
+                    $(this).find('a.assign').unbind().click(function(){
+                        window.location = '<?php
+            echo $strategy->assembleUrl(array(
+                'page_id' => 'view',
+                'action' => 'take',
+                'ticket' => $ticket->ticket_mask,
+            ), 'inside-pages')
+            ?>/id/' + $(this).data('admin_id');
+                    })
+                })
+            })
+        })
+    });
+})(jQuery)
+</script>

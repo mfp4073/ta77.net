@@ -1,0 +1,10 @@
+<?php
+
+$title=___('Change Password'); $this->setLayout('layout.phtml'); 
+$this->headScript()
+    ->prependFile(REL_ROOT_URL . '/application/default/views/public/js/jquery/jquery.js')
+    ->appendFile(REL_ROOT_URL . '/application/default/views/public/js/jquery/jquery.validate.js');
+
+include $this->_script('_form.phtml');
+
+

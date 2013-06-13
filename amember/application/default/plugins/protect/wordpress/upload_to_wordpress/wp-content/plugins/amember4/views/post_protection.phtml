@@ -1,0 +1,4 @@
+<?php include "protection.phtml"; ?>
+<br/><div>
+        <div><input type="checkbox" name='options[only_guest]' value=1 <?php checked(@$options['only_guest'],1);?>> <?php _e('Show post only for guests', 'am4-plugin');?><i> <?php _e('Post will be displayed only when user is not logged in', 'am4-plugin');?></i></div>
+</div>

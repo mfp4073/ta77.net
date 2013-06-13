@@ -1,0 +1,69 @@
+/* For developers: please do not edit .css file directly, edit sass file instead! */
+.am-cart .cart-product {
+  border: solid 2px #eee;
+  text-align: left;
+  margin: 10px 0;
+  padding: 5px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+}
+.am-cart .cart-product .title {
+  font-weight: bold;
+}
+.am-cart .cart-product .terms {
+  font-style: italic;
+  color: red;
+}
+.am-cart .cart-product .description {
+  font-size: smaller;
+  overflow: hidden;
+}
+.am-cart .cart-product .description img {
+  float: left;
+  margin: 0px 5px 5px 0px;
+}
+.am-cart .cart-product .description .description-full {
+  clear: both;
+}
+.am-cart #products {
+  width: 95%;
+}
+.am-cart div.am-cart-content {
+  float: left;
+  width: 65%;
+}
+.am-cart div.am-cart-content > div {
+  padding-right: 1em;
+}
+.am-cart div.am-cart-navigation {
+  float: right;
+  width: 34.9%;
+}
+
+.am-cart-login label {
+  display: inline-block;
+  width: 25%;
+}
+
+.basket .am-basket-price {
+  text-align: right;
+}
+.basket .am-basket-qty {
+  text-align: center;
+}
+.basket .am-basket-discount {
+  text-align: right;
+}
+.basket .am-basket-tax {
+  text-align: right;
+}
+.basket .am-basket-total {
+  text-align: right;
+}
+.basket .am-basket-delete {
+  text-align: center;
+}
+.basket .total {
+  font-weight: bold;
+}

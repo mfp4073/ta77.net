@@ -1,0 +1,40 @@
+<?php
+    echo $this->doctype('XHTML1_TRANSITIONAL');
+?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title><?php p($title) ?></title>
+    <?php $this->printLayoutHead(); ?>
+</head>
+<body bgcolor='<?php echo $theme->getConfig('bgcolor', '#ppp')?>'>
+<?php echo $this->placeholder('body-start'); ?>
+<div class="am-body">
+    
+<h4>Hello From Red Template</h4>
+
+Here is a sample of theme-based image
+<img src="<?php echo $this->_scriptImg('large-alert.png'); ?>">
+and you can "override" base images.
+    
+
+<?php include $this->_script('_top.phtml'); ?>
+
+<br /><br />
+<div class="centered">
+
+<?php if (empty($this->layoutNoTitle)): ?>
+    <h1><?php echo $title ?></h1>
+<?php endif; ?>
+<hr />
+<br />
+<!-- content starts here -->
+<?php echo $content ?>
+</div>
+
+<hr />
+<p class="powered">&copy; <a href="http://www.cgi-central.net">CGI-Central.NET</a>, 2002-<?php echo date('Y')?></p>
+</div><!-- end of div.am-body -->
+<?php echo $this->render('_popup.phtml'); ?>
+<?php echo $this->placeholder('body-finish'); ?>
+</body></html>

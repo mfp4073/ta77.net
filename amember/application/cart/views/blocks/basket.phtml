@@ -1,0 +1,25 @@
+<?php /* Shopping cart contents */ ?>
+<div id="block-cart-basket"></div>
+<!--?php echo $this->cart->getText(); ?-->
+<table width="100%">
+<thead>
+<tr>
+    <th><?php __e('Item')?></th>
+    <th><?php __e('Qty')?></th>
+    <th><?php __e('Subtotal')?></th>
+</tr>
+</thead>
+<?php foreach ($this->cart->getItems() as $item): ?>
+<tr>
+    <td><?php p($item->item_title) ?></td>
+    <td><?php echo $item->qty ?></td>
+    <td><?php echo $this->cart->getCurrency($item->first_total) ?></td>
+</tr>
+<?php endforeach ?>
+</table>
+<div class="block-footer">
+    <a href="<?php $this->pUrl(null, 'view-basket') ?>"><?php __e("View Basket")?></a>
+|
+    <a href="<?php $this->pUrl(null, 'checkout') ?>"><?php __e("Checkout")?></a>
+
+</div>

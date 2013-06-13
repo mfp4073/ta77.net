@@ -1,0 +1,126 @@
+<?php
+$this->layoutNoTitle = true;
+$this->setLayout('admin/layout.phtml');
+?>
+<?php if (!$di->config->get('dont_check_updates') && Am_Di::getInstance()->authAdmin->getUser()->isSuper()): ?>
+<script type="text/javascript">
+    if (!document.cookie.match(/[^;]am_upgrade_checked=1[;$]/))
+    {
+        $.getJSON(window.rootUrl + '/admin-upgrade/check', function(updates){
+            var $ul = $('<ul class="upgrades"></ul>');
+            var up_cnt = 0;
+            $.each(updates, function(k,record){
+                var link = $('<a href="javascript:" data-href="'+record.dismiss_url+'" class="dismiss">dismiss (x)</a>');
+                var changelog = $('<a href="javascript:;" class="changelog">changelog</a>');
+                changelog.data('text', record.text);
+                var update = $('<a href="' + window.rootUrl + '/admin-upgrade">update</a>');
+                var li = $("<li class='upgrade'>"
+                    + record.notice
+                    +"</li>");
+                li.append(" ").append(changelog);
+                li.append(" ").append(update);
+                li.append(" ").append(link);
+                changelog.click(function(){
+                    var $div = $('<div style="display:none;" id="chagelog-popup"></div>');
+                    $('body').append($div);
+                    var $pre = $('<pre></pre>')
+                    $div.append($pre.html($(this).data('text')));
+
+                    $div.dialog({
+                        autoOpen: true,
+                        modal : true,
+                        title : "Changelog",
+                        width : 800,
+                        position : ['center', 100],
+                        close : function() {
+                            $div.remove();
+                        }
+                    });
+                })
+                link.click(function(){
+                    $.get(link.data('href'));
+                    li.remove();
+                    up_cnt--
+                    $(".upgrade-caption-count").empty().append(up_cnt);
+                    if (up_cnt <= 0) {
+                        $('.upgrades-conteiner').remove();
+                    }
+                });
+                $ul.append(li);
+                up_cnt++;
+            });
+            if (up_cnt) {
+                var $div = $('<div class="upgrades-conteiner"></div>');
+                $div.append(
+                '<div class="upgarde-controll">[<a href="#" id="upgarde-controll-link">+</a>]</div>' +
+                    '<div class="upgrade-caption"><span class="upgrade-caption-count">' + up_cnt + '</span> upgrades available' + '</div>'
+            ).append($ul)
+                $('.content').prepend($div);
+
+                $('#upgarde-controll-link').click(function(){
+                    var $a = $(this);
+                    if ($a.hasClass('opened')) {
+                        $a.removeClass('opened').empty().append('+');
+                        $('.upgrades').hide();
+                        $('.upgrade-caption').show();
+                    } else {
+                        $a.addClass('opened').empty().html('&minus;');
+                        $('.upgrade-caption').hide();
+                        $('.upgrades').show();
+                    }
+                    return false;
+                })
+            }
+        });
+    }
+</script>
+<?php endif; //!$di->config->get('dont_check_updates') && Am_Di::getInstance()->authAdmin->getUser()->isSuper() ?>
+<div class="dashboard-customize-link-wrapper">
+<a href="<?php p(REL_ROOT_URL) ?>/admin/customize-dashboard" class="dashboard-customize-link"><?php __e('Customize') ?></a>
+</div>
+<div class="dashboard">
+    <div class="top">
+        <div>
+            <?php foreach ($warnings as $w): ?>
+            <div class="admin-warnings">
+                <ul>
+                <li><?php echo $w ?></li>
+                </ul>
+            </div>
+            <?php endforeach; //$warnings ?>
+            <?php foreach ($widgets['top'] as $widget) : ?>
+            <div class="widget">
+                <?php echo $widget->render($this, isset($config[$widget->getId()]) ? $config[$widget->getId()] : null) ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <div class="aside">
+        <div>
+            <?php foreach ($widgets['aside'] as $widget) : ?>
+            <div class="widget">
+                <?php echo $widget->render($this, isset($config[$widget->getId()]) ? $config[$widget->getId()] : null) ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <div class="main">
+        <div>
+           <?php foreach ($widgets['main'] as $widget) : ?>
+            <div class="widget">
+                <?php echo $widget->render($this, isset($config[$widget->getId()]) ? $config[$widget->getId()] : null) ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <div class="bottom">
+        <div>
+            <?php foreach ($widgets['bottom'] as $widget) : ?>
+            <div class="widget">
+                <?php echo $widget->render($this, isset($config[$widget->getId()]) ? $config[$widget->getId()] : null) ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+<?php if ($showQuickstart) include $this->_script('admin/_quickstart.phtml'); ?>

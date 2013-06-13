@@ -1,0 +1,11 @@
+<?php 
+$this->setLayout('admin/user-layout.phtml'); 
+$title = ___("Saved Credit Cards");
+
+echo "<h1>$title</h1>";
+if (empty($cc) && empty($form)) __e("No Credit Cards stored for this customer. %sAdd Credit Card%s", 
+    '<a href="'.$this->escape($addUrl).'">', '</a>');
+if (!empty($form)) echo $form;
+include $this->_script('js.country_state.js'); 
+
+?>

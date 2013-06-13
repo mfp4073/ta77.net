@@ -1,0 +1,21 @@
+<?php if ($member_products || $member_future_products): ?><!-- Customer have active subscriptions, display it if config allows  -->
+<ul id="member-subscriptions">
+    <?php foreach ($member_products as $p):  ?>
+    <li><b><?php echo $p->getTitle(); ?></b> - 
+    <?php if ($products_expire[$p->pk()] == Am_Period::MAX_SQL_DATE): ?>
+        <?php __e('Lifetime') ?>
+    <?php else: ?>
+        <?php __e('expires') ?> <?php echo amDate($products_expire[$p->pk()]); ?>
+    <?php endif ?></li>
+    <?php endforeach ?>
+    <?php foreach ($member_future_products as $p) : ?>
+    <li><?php echo $p->getTitle(); ?> -
+        <?php __e('begins') ?> <?php echo amDate($products_begin[$p->pk()]); ?>
+    </li>
+    <?php endforeach; ?>
+</ul>
+<?php else : // Customer doesn't have any active subscriptions ?>
+    <h3><?php __e('You have no active subscriptions') ?></h3>
+    <?php __e('Please use %sAdd/Renew subscription%s form','<i>','</i>') ?><br />
+    <?php __e('to order or renew subscription.') ?><br />
+<?php endif ?>

@@ -1,0 +1,62 @@
+
+<div class="admin-quickstart" style="display: none">
+    <div class="popup-quickstart">
+        <div class="popup-quickstart-content">
+    <div style="text-align: right; font-size: xx-small">
+        <a href="<?php echo REL_ROOT_URL?>/admin/disable-quickstart">do not show this again(x)</a>
+    </div>
+    <h2>Amember Pro v.4 QuickStart Wizard</h2>
+    <p><strong>Thank you for choosing aMember Pro software! This guide was designed to 
+    help you start using it.</strong></p>
+    <br />
+    <ul>
+        <li class="done">
+            <?php $this->tr()->start('<a target="_blank" href="'.REL_ROOT_URL.'/admin-setup/plugins">', '</a>') ?>
+            Visit %sSetup%s and enable all necessary modules and plugins.
+            Press SAVE. When it is done, choose newly enable plugins at top of the setup page and configure each of them.
+            When done, back to the DASHBOARD to see this message again.
+            <?php $this->tr()->stop() ?>
+        </li>
+        <li>
+            <?php $this->tr()->start('<a target="_blank" href="'.REL_ROOT_URL.'/admin-products">', '</a>') ?>
+            Visit %sProducts Manager%s to add new products - subscription types. You can also define product
+            categories to group products.
+            <?php $this->tr()->stop() ?>
+        </li>
+        <li>
+            <?php $this->tr()->start('<a target="_blank" href="'.REL_ROOT_URL.'/admin-content">', '</a>') ?>
+            Visit %sContent Manager%s to protect site folders, upload members-only files and pages.
+            <?php $this->tr()->stop() ?>
+        </li>
+        <li>
+            <?php $this->tr()->start('<a target="_blank" href="'.REL_ROOT_URL.'/signup">', '</a>') ?>
+            Try to start new %ssignup%s. On success, you should receive an e-mail 
+            message from aMember, and get access to configured files and folders.
+            <?php $this->tr()->stop() ?>
+       </li>
+        <li>
+            <?php $this->tr()->start('<a target="_blank" href="'.REL_ROOT_URL.'/member">', '</a>',
+                                     '<a target="_blank" href="'.REL_ROOT_URL.'/admin-logs">', '</a>'); ?>
+            Try to %slogin%s as new customer. If all handled correctly, you should get access
+            to configured protected content. If not, visit %slogs section%s to find idea why something
+            went wrong.
+            <?php $this->tr()->stop(); ?>
+       </li>
+    </ul>
+    <br /><br />
+    <input type="button" id="close-quickstart" value="Close this message">
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+(function($){
+    jQuery(document).ready(function($) {
+        $(".admin-quickstart").show(500);
+        $("body").append("<div id='mask' />");
+        $("#close-quickstart").click(function(){
+            $(".admin-quickstart").hide(500);
+            $("#mask").remove();
+        });
+    });
+})(jQuery)
+</script>

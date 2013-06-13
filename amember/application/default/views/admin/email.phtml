@@ -1,0 +1,110 @@
+<?php $title=___("E-Mail Users"); $this->setLayout('admin/layout.phtml'); ?>
+<?php include $this->_script('admin/_error.phtml'); 
+
+$this->headStyle()->captureStart() ?>
+<?php $this->headStyle()->captureEnd() ?>
+
+<div class="filter-wrap">
+<span style="float:left; text-align: left; padding: 5px;">
+<?php __e('You have currently choosed the following users for e-mail to:')?><br />
+<strong><?php echo @$filterCondition ?></strong><br />
+<?php __e('%d user(s) matches your search', $users_found)?>.
+<a href="javascript:loadBrowseUsers()" class="browse-users"><?php __e('browse...')?></a>
+</span>
+<br />
+
+<?php echo $search ?>
+</div>
+
+    
+<?php
+echo $form;
+?>        
+    
+<div id="email-history"></div>
+        
+<div id="browse-users" style="display:none"></div>
+        
+<script type="text/javascript">
+function insertTag(sel){
+    var v = $(sel).val();
+    if (v == "") return;
+    var txt = $('textarea[name="body"]');
+    txt.val( txt.val() + " " + v);
+    sel.selectedIndex = null;
+}
+$(function(){
+    $("#email-history")
+        .load(window.rootUrl + "/admin-email/history-rows?_h_wrap=1",
+            function(){ $("#email-history .grid-wrap").ngrid(); });
+            
+    var editor = null;
+    $("input[name='format']").change(function()
+    {
+        if (!this.checked) return;
+        if (this.value == 'html')
+        {
+            if (!editor) {
+                editor = initCkeditor('body-0', { placeholder_items: [
+                    ['%user.name%'],
+                    ['%user.email%'],
+                    ['%user.login%'],
+                    
+                    ['%user.street%'],
+                    ['%user.city%'],
+                    ['%user.state%'],
+                    ['%user.zip%'],
+                    ['%user.country%'],
+                ]});
+            }
+        } else {
+            if (editor) {
+                editor.destroy();
+                editor = null;
+            }
+        }
+    }).change();
+
+
+
+
+    $("form").not("[id='am-form-email']").submit(function(event){
+        if (!$(this).data('fields-added'))
+        {
+            $(this).data('fields-added', true);
+            event.stopPropagation(); event.preventDefault();
+            var f = $("form#am-form-email");
+            var subj = $('<input type="hidden" name="subject" />').val(f.find("input[name='subject']").val());
+            var is_html = f.find("input[name='format'][value='html']").is(':checked');
+            var fmt = $('<input type="hidden" name="format" />').val(is_html ? 'html' : 'text');
+            var bb;
+            if (is_html)
+            {
+                bb = editor.getData(); 
+            } else {
+                bb = f.find('[name="body"]').val();
+            }
+            var body = $('<input type="hidden" name="body" />').val(bb);
+            $(this).append(subj).append(fmt).append(body);
+            $(this).submit(); // resubmit form with new fields
+        }
+    });
+});
+    function loadBrowseUsers()
+    {
+        var vars = $("#am-form-email").serialize();
+        $("#browse-users").empty().dialog({
+            modal: true,
+            bgiframe: true,
+            autoOpen: true,
+            height: 500,
+            width: 730,
+            draggable: true,
+            resizeable: true,
+            title: "<?php j(___('Browse Found Users'))?>",
+        }).load(window.rootUrl + "/admin-email/browse-users", vars, function(){
+            $("#browse-users").ngrid();
+        });
+    }
+    
+</script>

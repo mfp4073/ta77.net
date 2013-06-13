@@ -1,0 +1,3 @@
+<Limit GET POST>
+allow from all
+</Limit>

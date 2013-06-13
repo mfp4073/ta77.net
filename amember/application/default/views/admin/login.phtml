@@ -1,0 +1,47 @@
+<?php
+$title = "Administrator Login";
+$this->setLayout("admin/layout-login.phtml");
+?>
+<div class="form-login-wrapper">
+    <div class="form-login" >
+        <?php if (!empty($error)) echo $this->formErrors($error) ?>
+        <div class="am-form">
+            <form method="post" action="<?php $this->pUrl() ?>">
+                    <fieldset>
+                        <legend><?php __e('Administrator Login') ?></legend>
+                        <div class="row">
+                            <div class="element-title">
+                                <label for="login"><?php __e("Username") ?></label>
+                            </div>
+                            <div class="element">
+                                <input type="text" id="login" name="login" size="18" value="<?php echo htmlentities($login) ?>" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="element-title">
+                                <label for="pass"><?php __e("Password") ?></label>
+                            </div>
+                            <div class="element">
+                                <input type="password" id="pass" name="passwd" size="18" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="element-title"></div>
+                            <div class="element">
+                                <input type=hidden name=do_login value=1>
+                                <input type=submit value="<?php __e("Log In")?>">
+                            </div>
+                        </div>
+                    </fieldset>
+            </form>
+        </div>
+        <a href="<?php echo REL_ROOT_URL . '/admin-auth/send-pass' ?>"><?php __e('Lost your password?') ?></a>
+    </div>
+</div>
+<script type="text/javascript">
+$(function(){
+    $('[name=login]').focus();
+})
+</script>

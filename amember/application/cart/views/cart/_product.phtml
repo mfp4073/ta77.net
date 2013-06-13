@@ -1,0 +1,30 @@
+<div class="cart-product">
+<div class="title">
+   <a href="<?php p($this->pUrl(null, 'product', null, 'id', $product->pk(), 'c', $this->cc)) ?>"><?php p($product->title) ?></a>
+   <span class="terms">
+   <?php 
+   $plans = $product->getBillingOptions();
+   if (count($plans)==1)
+       if(Am_Di::getInstance()->config->get('cart.hide_default_billing_plan')) echo $product->getBillingPlan()->getTerms();
+       else echo current($plans);
+   else
+   echo "<select class='billing-plan-select' name='plan[{$product->product_id}]' size='1'>\n"
+       . Am_Controller::renderOptions($plans, $product->default_billing_plan_id) 
+       . "</select>\n";
+   ?>
+   </span>
+</div>
+<div class="description">
+    <?php if($product->img): ?>
+        <img src="<?php echo REL_ROOT_URL ?>/data/public/<?php echo urlencode($product->img_path) ?>" alt="<?php p($product->title) ?>" title="<?php p($product->title) ?>" /><br />
+    <?php endif ?>
+    <?php echo $product->getDescription(false); ?>
+    <div class="description-full">
+    <?php if(!empty($displayProductDetails) && $product->cart_description): ?>
+        <?php echo $product->cart_description; ?>
+    <?php endif ?>
+    </div>
+</div>
+<input type="button" name="add" value="<?php __e('Add to Basket')?>" onclick="cart.add(this,<?php echo $product->product_id; ?>, 1)">
+<input type="button" name="order" value="<?php __e('Quick Order')?>" onclick="cart.addAndCheckout(this,<?php echo $product->product_id; ?>); ">
+</div>

@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head>
+        <title><?php echo $title ?></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta http-equiv="Refresh" CONTENT="1; URL=<?php p($url) ?>">
+        <style type="text/css">
+            <!--
+            body {
+                font-family: Arial;
+                background:#EDEDED;
+            }
+
+            a, a:visited {
+                color: #34536e;
+            }
+            -->
+        </style>
+    </head>
+    <body>
+        <table height="90%" width="70%" border="0" align="center">
+            <tr valign="middle" align=center>
+                <td>
+                    <strong><?php echo $text ?></strong>
+                    <br /><br />
+                    <a href="<?php p($url) ?>"><?php __e("Click here if you do not want to wait any longer (or if your browser does not automatically forward you).") ?></a>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

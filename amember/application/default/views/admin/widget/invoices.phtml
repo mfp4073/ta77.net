@@ -1,0 +1,35 @@
+<?php $lastInvoicesList = Am_Di::getInstance()->invoiceTable->selectLast($num,$statuses); ?>
+<div class="admin-lastusers">
+    <h2><?php __e("Last %s Invoices", $num); ?></h2>
+    <div class="grid-container">
+        <table class="grid">
+            <tr>
+                <th class="helper-corner-left"><?php __e('Date/Time') ?></th>
+                <th><?php __e('Invoice') ?></th>
+                <th><?php __e('Status') ?></th>
+                <th><?php __e('Payment System') ?></th>
+                <th><?php __e('Items') ?></th>
+                <th><?php __e('Total') ?></th>
+                <th class="helper-corner-right"><?php __e('User') ?></th>
+            </tr>
+            <?php foreach ($lastInvoicesList as $i): ?>
+            <tr<?php
+            if (@$rownum++% 2)
+            {
+            echo ' class="odd" ';
+            }
+            ?>>
+                <td><?php p(amDatetime($i->tm_added)) ?></td>
+                <td><a href="<?php echo REL_ROOT_URL ?>/admin-user-payments/index/user_id/<?php p($i->user_id) ?>#invoice-<?php p($i->invoice_id) ?>" target="_blank"><?php p($i->invoice_id).p('/').p($i->public_id) ?></a></td>
+                <td><?php echo $i->getStatusTextColor() ?></td>
+                <td><?php p($i->paysys_id) ?></td>
+                <td><?php p($i->items) ?></td>
+                <td><?php echo $i->getTerms() ?></td>
+                <td><?php p($i->name) ?>
+                    (<a target="_top" href="<?php echo $this->userUrl($i->user_id) ?>"><?php p($i->login) ?></a>)<br />
+                    <strong><?php p($i->email) ?></strong></td>
+            </tr>
+            <?php endforeach ?>
+        </table>
+    </div>
+</div>

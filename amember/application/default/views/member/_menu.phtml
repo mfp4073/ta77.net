@@ -1,0 +1,24 @@
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $('.am-tabs li:has(ul) > a').prepend(
+        $('<div></div>').addClass('arrow')
+    );
+});
+</script>
+<div class="am-tabs">
+<?php
+$m = new Am_View_Helper_Menu();
+$m->setView($this);
+
+echo $m->renderMenu($this->di->navigationUser,
+    array(
+        'ulClass' => '',
+        'activeClass' => 'active',
+        'normalClass' => 'normal',
+        'disabledClass' => 'disabled',
+        'maxDepth' => 1,
+    )
+);
+
+?>
+</div>

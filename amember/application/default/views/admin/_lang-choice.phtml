@@ -1,0 +1,41 @@
+<?php 
+if ($di->config->get('lang.display_choice')): 
+    
+$avail = $di->languagesListAdmin;
+$list = array();
+if ($enabled = $di->config->get('lang.enabled', array()))
+    foreach ($enabled as $lang)
+        if (!empty($avail[$lang]))
+            $_list[ $lang ] = $avail[$lang];
+if ($_list):
+    list($_locale,) = explode('_', key(Zend_Locale::getDefault()));
+    echo $this->icon($_locale , array('id' => 'lang-switch-icon'), 'flag');
+    
+?>
+<div class="am-lang-choice" style="display: none; position: absolute">
+    <div>
+        <form method='get' action="<?php p(REL_ROOT_URL)?>/admin/">
+        <?php __e('Language') ?> :
+        <?php echo Am_Controller::renderArrayAsInputHiddens(array_diff_key($_GET, array('lang'=>null))); ?>
+        <select name='_lang' size='1' onchange='this.form.submit()'>
+        <?php echo Am_Controller::renderOptions($_list, $_locale); ?>
+        </select>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $("#lang-switch-icon").click(function(){
+        var div = $(".am-lang-choice");
+        if (!div.data('positioned'))
+            div.css({
+                top : $('.user-identity-block').offset().top,
+                left: $('.user-identity-block').offset().left,
+                width: $('.user-identity-block').width() + 25 + 'px'
+            }).data('positioned', true);
+        div.toggle();
+    });
+});
+</script>
+
+<?php endif; endif ?>

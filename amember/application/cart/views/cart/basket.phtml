@@ -1,0 +1,22 @@
+<?php
+$title = $di->config->get('site_title') . ' : ' . ___("Your Basket");
+$this->setLayout('cart/layout.phtml');
+$isBasket = true;
+?>
+<div id="basket-content">
+    <form id="basket" action="<?php $this->pUrl('index', 'view-basket') ?>" method="post">
+        <?php include $this->_script('cart/_basket.phtml')  ?>
+        <br />
+        <div id="coupon-enter">
+            <?php __e("Enter Coupon Code:") ?> <input type="text" name="coupon" value="<?php p($cart->getCouponCode()) ?>" size="16"/>
+            <?php if (!empty($coupon_error)): ?>  <div class="error"><?php p($coupon_error) ?></div> <?php endif ?>
+        </div>
+        <br />
+        <input type="submit" name="calculate" value="<?php __e("Update") ?>" />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="submit" name="do-checkout" value="<?php __e("Checkout") ?>" />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="submit" name="do-return" value="<?php __e("Return") ?>" />
+        <input type="hidden" name="b" value="<?php p($b) ?>"/>
+    </form>
+</div>

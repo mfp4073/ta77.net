@@ -1,0 +1,24 @@
+<?php 
+if ($di->config->get('lang.display_choice')): 
+    
+$avail = $di->languagesListUser;
+$list = array();
+if ($enabled = $di->config->get('lang.enabled', array()))
+    foreach ($enabled as $lang)
+        if (!empty($avail[$lang]))
+            $_list[ $lang ] = $avail[$lang];
+if ($_list):
+    $_locale = key(Zend_Locale::getDefault());
+    if (!array_key_exists($_locale, $_list))
+        list($_locale) = explode('_', $_locale);
+?>
+<div class="am-lang-choice">
+<form method='get' action="<?php echo htmlentities(preg_replace('/\?.*/', '', $_SERVER['REQUEST_URI']))?>">
+<?php __e('Language') ?> :
+<?php echo Am_Controller::renderArrayAsInputHiddens(array_diff_key($_GET, array('lang'=>null))); ?>
+<select name='_lang' size='1' onchange='this.form.submit()'>
+<?php echo Am_Controller::renderOptions($_list, $_locale); ?>
+</select>
+</form>
+</div>
+<?php endif; endif ?>

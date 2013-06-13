@@ -1,0 +1,21 @@
+<?php $title=___('Payment Failed'); $this->setLayout('layout.phtml'); ?>
+<?php include $this->_script('_error.phtml'); ?>
+
+<div class="cancel-paysystems">
+<span class="error"><?php __e('An error occured while handling your payment.') ?></span><br />
+<?php __e('Choose another payment processor and try again') ?>
+
+<form method="post" action="<?php echo REL_ROOT_URL?>/cancel/repeat">
+<?php foreach ($this->paysystems as $ps)
+    printf('<input type="radio" name="paysys_id" value="%1$s" id="paysys-%1$s"/>
+        <label for="paysys-%1$s">%2$s - %3$s</label><br />',
+        $ps['paysys_id'], $ps['title'], $ps['description']);
+?>
+<input type="hidden" name="id" value="<?php echo $this->escape($id) ?>" />
+
+<br />
+<input type="submit" name="do" value="<?php __e("Make Payment")?>" />
+</form>
+</div>
+
+

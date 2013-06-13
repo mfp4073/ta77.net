@@ -1,0 +1,58 @@
+<?php $this->placeholder("head-start")->prepend(sprintf('<base href="%s://%s" />', (empty($_SERVER['HTTPS']) ? 'http' : 'https'),  Am_Controller::escape($_SERVER['HTTP_HOST']))) ?>
+<?php $title=___('Thank you for Signing up'); $this->setLayout('layout.phtml'); ?>
+
+<!-- display payment receipt -->
+<?php if (empty($invoice) || !$invoice->tm_started): ?>
+<?php if(!empty($invoice) && !$invoice->isConfirmed()) : ?>
+<strong><?php __e('IMPORTANT NOTE: We review  all new payments manually, so your payment is under review currently.');?> <br/>
+<?php __e('You will get  email notification after payment will be approved by admin. We are sorry  for possible inconvenience.') ?></strong>
+<?php elseif ($show_waiting && !empty($invoice)): ?>
+<div class="am-thanks-awaiting-payment">
+    <?php __e("Your payment is not yet confirmed by payment system. It may take several minutes to get confirmation of the payment.") ?>
+    <div class="am-thanks-awaiting-refresh">
+    <?php __e("This page will be automatically refreshed within %s", $refreshTime) ?>
+    </div>
+</div>
+<script type="text/javascript">
+<?php echo $script ?>    
+</script>
+<?php echo $this->blocks('thanks/notstarted'); ?>
+<?php else : ?>
+<?php if(Am_Di::getInstance()->auth->getUserId()) : // User is logged in?>
+<strong><?php __e("Enjoy your membership. Please click %shere%s to access your member's area.",'<a href="'.ROOT_SURL .'/login">','</a>') ?></strong>
+<?php else : // User is not logged in ?>
+<strong><?php __e('Enjoy your membership. To Login please click here %sLogin%s','<a href="'.ROOT_SURL .'/login">','</a>') ?></strong>
+<?php endif ?>
+<?php endif ?>
+<br />
+<?php echo $this->blocks('thanks/unknown'); ?>
+
+<?php elseif ($invoice->tm_started): ?>
+
+<?php if ($invoice->first_total > 0): ?>
+<?php __e('Your payment has been successfully processed.') ?>
+<?php else: ?>
+<?php __e('Your subscription has been successfully processed.') ?>
+<?php endif ?>
+
+<br />
+<?php __e('Order reference: %s', $invoice->public_id . (@$payment->receipt_id ? (" / ".$payment->receipt_id) : null)) ?><br />
+<?php if (!empty($payment->dattm)) __e('Date and time of payment: %s',amDatetime($payment->dattm)) ?><br />
+
+<br /><br />
+
+<?php include $this->_script('_receipt.phtml'); ?>
+
+<?php if(Am_Di::getInstance()->auth->getUserId()) : // User is logged in?>
+<strong><?php __e("Enjoy your membership. Please click %shere%s to access your member's area.",'<a href="'.ROOT_SURL .'/login">','</a>') ?></strong>
+<?php else : // User is not logged in ?>
+<strong><?php __e('Enjoy your membership. To Login please click here %sLogin%s','<a href="'.ROOT_SURL .'/login">','</a>') ?></strong>
+<?php endif ?>
+<br />
+
+<?php echo $this->blocks('thanks/success'); ?>
+
+<?php endif // invoice->tm_started ?>
+<!-- end of display payment receipt -->
+
+

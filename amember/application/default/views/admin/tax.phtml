@@ -1,0 +1,42 @@
+<?php $title = ___('Tax Settings'); $this->setLayout('admin/layout.phtml'); ?>
+
+<div id="form-wrap">
+<?php include $this->_script('admin/_form.phtml'); ?>
+</div>
+
+<script>
+$(".remove").click(function(){
+    $this = $(this);
+    $.get($this.attr('href'), function(){
+        $this.closest('tr').remove();
+    });
+
+    return false;
+})
+
+$('input[name=tax_type]').click(onMethodChange).filter(":checked").click();
+$('input[name=tax_type]').closest('tr').nextAll().hide();
+$('input[name=tax_type]').each(function(){
+    if (this.checked) {
+       onMethodChange.apply(this);
+    }
+})
+
+function onMethodChange() {
+    switch (this.value) {
+        case '0' : case '':
+            $("fieldset[id=tax-global]").hide();
+            $("fieldset[id=tax-regional]").hide();
+            break;
+        case '1' :
+            $("fieldset[id=tax-global]").show();
+            $("fieldset[id=tax-regional]").hide();
+            break;
+        case '2' :
+            $("fieldset[id=tax-global]").hide();
+            $("fieldset[id=tax-regional]").show();
+            break;
+    }
+}
+</script>
+<?php include $this->_script('js.country_state.js'); ?>

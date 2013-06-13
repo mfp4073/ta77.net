@@ -1,0 +1,53 @@
+<div class="grid-container">
+    <table class="grid basket">
+        <tr>
+            <th>#</th>
+            <th><?php __e('Item') ?></th>
+            <th><?php __e('Price') ?></th>
+            <th><?php __e('Qty') ?></th>
+            <th><?php __e('Discount') ?></th>
+            <th><?php __e('Tax') ?></th>
+            <th><?php __e('Subtotal') ?></th>
+            <?php if ($isBasket): ?>
+                <th><i><?php __e('Delete') ?></i></th>
+            <?php endif; ?>
+        </tr>
+        <?php foreach ($cart->getItems() as $item): ?>
+            <tr>
+                <td><?php echo @++$ii ?></td>
+                <td><?php p($item->item_title) ?></td>
+                <td class="am-basket-price"><?php p($cart->getCurrency($item->first_price)) ?></td>
+                <td class="am-basket-qty"style="text-align: center;">
+                    <?php
+                    echo ($item->is_countable && $item->variable_qty && $isBasket) ?
+                        $this->formText("qty[$item->item_id]", $item->qty, array('size' => 3, 'style' => 'text-align:right')) : p($item->qty)
+                    ?></td>
+                <td class="am-basket-discount"><?php p($cart->getCurrency($item->first_discount)) ?></td>
+                <td class="am-basket-tax"><?php p($cart->getCurrency($item->first_tax)) ?></td>
+                <td class="am-basket-total"><?php p($cart->getCurrency($item->first_total)) ?></td>
+                <?php if ($isBasket): ?>
+                    <td class="am-basket-delete"><input type="checkbox" name="d[<?php echo $item->item_id ?>]" value="1"></td>
+                <?php endif; ?>
+            </tr>
+        <?php endforeach ?>
+        <tr class="total">
+            <td colspan="4"><?php __e("Total") ?></td>
+            <td class="am-basket-discount"><?php p($cart->getCurrency($cart->getInvoice()->first_discount)) ?></td>
+            <td class="am-basket-tax"><?php p($cart->getCurrency($cart->getInvoice()->first_tax)) ?></td>
+            <td class="am-basket-total"><?php p($cart->getCurrency($cart->getInvoice()->first_total)) ?></td>
+            <?php if ($isBasket): ?>
+                <td>&nbsp;</td>
+            <?php endif; ?>
+        </tr>
+        <?php if (!empty($cart->getInvoice()->rebill_times)): ?>
+            <tr class="terms">
+                <td colspan="4"><?php __e("Terms") ?></td>
+                <?php if ($isBasket): ?>
+                    <td colspan="4"><?php echo $cart->getInvoice()->getTerms() ?></td>
+                <?php else: ?>
+                    <td colspan="3"><?php echo $cart->getInvoice()->getTerms() ?></td>
+                <?php endif; ?>
+            </tr>
+        <?php endif ?>
+    </table>
+</div>

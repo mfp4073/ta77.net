@@ -1,0 +1,5 @@
+<?php /* Shopping cart search */ ?>
+<form method="get" action="<?php echo REL_ROOT_URL?>/cart/index/search">
+    <input type="text" name="q" value="<?php echo $this->escape(@$_REQUEST['q']) ?>" style="width:60%">
+    <input type="submit" value="<?php __e('Search')?>">
+</form>

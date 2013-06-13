@@ -1,0 +1,76 @@
+<?php $this->setLayout('admin/layout.phtml'); ?>
+<?php include $this->_script('admin/_error.phtml'); ?>
+<div id="import-area">
+    <?php echo $table; ?>
+</div>
+<div class="info">
+    <h2><?php __e('Important Notice:') ?></h2>
+    <p><strong><?php __e('One field can be assigned to one column only.') ?></strong></p>
+    <p><strong><?php __e('Email address is required field.') ?></strong></p>
+    <p><strong><?php __e('Subscription field should have numeric value which represent subscription in current installation. You can find these values at %sManage Products%s page, column #.',
+        '<a href="' . REL_ROOT_URL . '/admin-products" target="_blank">', '</a>') ?></strong></p>
+    <p><strong><?php __e('Dates can be in the folowing formats') ?>:</strong></p>
+    <ul class="list">
+        <li><?php __e('SQL Date Format') ?> : YYYY-MM-DD</li>
+        <li><?php __e('European Date Format') ?> : DD.MM.YYYY</li>
+        <li><?php __e('American Date Format') ?> : MM/DD/YYYY</li>
+    </ul>
+</div>
+<script type="text/javascript">
+    (function($) {
+        function setupHooks() {
+            $("#skip:checked").each(function(){
+                $(".grid tr:eq(1)").addClass('disabled');
+            });
+
+            $("#skip").change(function(){
+                if (this.checked) {
+                    $(".grid tr:eq(1)").addClass('disabled');
+                } else {
+                    $(".grid tr:eq(1)").removeClass('disabled');
+                }
+            })
+            $("#add_subscription").change(function(){
+                $(this.form).ajaxSubmit({
+                    target: '#import-area'
+                });
+            })
+            $("#add_encrypted_pass").change(function(){
+                $(this.form).ajaxSubmit({
+                    target: '#import-area'
+                });
+            })
+            $("select[name=delim]").change(function(){
+                $(this.form).ajaxSubmit({
+                    target: '#import-area'
+                });
+            })
+
+            $("input[type=button]").click(function(){
+                this.form.action = this.form.action.replace(/(\/)[a-z]+(\/*)$/, '$1back$2');
+                this.form.submit();
+            })
+
+            $("select[name^=FIELD]").each(function(){
+                if (this.value) {
+                    $('.' + this.name).addClass('selected');
+                }
+            });
+
+            $("select[name^=FIELD]").change(function(){
+                if (this.value) {
+                    $('.' + this.name).addClass('selected');
+                } else {
+                    $('.' + this.name).removeClass('selected');
+                }
+            });
+        }
+
+        $(function(){
+            $('#import-area').ajaxSuccess(function(){
+                setupHooks();
+            });
+            setupHooks();
+        })
+    })(jQuery)
+</script>

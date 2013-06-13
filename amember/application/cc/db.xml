@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema version="4.0.0" id="$Id$" >
+  <table name="cc_rebill">
+    <field name="cc_rebill_id" type="int" notnull="1" extra="auto_increment"/>
+    <field name="tm_added" type="datetime" notnull="1" />
+    <field name="paysys_id" type="varchar" len="64" />
+    <field name="invoice_id" type="int" />
+    <field name="rebill_date" type="date" />
+    <field name="status" type="smallint" />
+    <field name="status_tm" type="datetime" />
+    <field name="status_msg" type="varchar" len="255" />
+    <index name="PRIMARY" unique="1">
+      <field name="cc_rebill_id"/>
+    </index>
+    <index name="invoice_date" unique="1">
+        <field name="invoice_id" />
+        <field name="rebill_date" />
+    </index>    
+    <index name="by_date">
+      <field name="rebill_date" />
+    </index>
+  </table>
+</schema>

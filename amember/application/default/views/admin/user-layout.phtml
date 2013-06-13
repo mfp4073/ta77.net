@@ -1,0 +1,8 @@
+<?php
+$this->layoutNoTitle = true;
+$this->setLayout('admin/layout.phtml'); ?>
+<?php include $this->_script('admin/_error.phtml'); ?>
+<?php echo $this->adminTabs($this->di->navigationUserTabs); ?>
+<?php include $this->_script('admin/_user_info.phtml');?>
+<?php echo $content; ?>
+<?php include $this->_script('js.country_state.js'); ?>

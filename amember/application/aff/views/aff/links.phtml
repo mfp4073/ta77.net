@@ -1,0 +1,67 @@
+<?php
+$title=___('Affiliate info');
+$this->headLink()->appendStylesheet($this->_scriptCss('aff.css'));
+$this->setLayout('member/layout.phtml');
+?>
+<?php echo $this->blocks('aff/links/top') ?>
+<h2><?php __e('Your General Affiliate Link') ?></h2>
+<div class="aff-banner-preview">
+    <?php echo $this->formText('', $generalLink, array('style'=>'width:90%')) ?>
+</div>
+<!-- aff banners -->
+<?php if (count($affBanners)) : ?>
+<h2><?php __e('Banners and Links') ?></h2>
+    <?php foreach ($affBanners as $banner) : ?>
+<div class="aff-banner-preview">
+    <div>
+        <div class="aff-banner-preview-info">
+            <dl>
+                <dt><?php __e('Title') ?></dt>
+                <dd><?php echo $this->escape($banner->title) ?></dd>
+                <dt><?php __e('Target URL') ?></dt>
+                <dd><a href="<?php echo $banner->url ?>"><?php echo $this->escape($banner->url) ?></a></dd>
+                <?php if ($banner->desc) : ?>
+                <dt><?php __e('Description') ?></dt>
+                <dd><?php echo $this->escape($banner->desc) ?></dd>
+                <?php endif; ?>
+            </dl>
+            <br />
+            <?php $bannerRenderer = Am_BannerRenderer::create($banner); ?>
+            <?php if ($note = $bannerRenderer->getNote()) : ?>
+            <a href="javascript:;" onclick="jQuery(this).siblings('.aff-banner-note').toggle()" class="local-link"><?php __e('Installation Instructions') ?></a><br />
+            <div class="aff-banner-note" style="display:none">
+                            <?php echo $note ?>
+            </div>
+            <?php endif; ?>
+            <br />
+            <a href="javascript:;" onclick="jQuery(this).siblings('textarea').toggle()" class="local-link"><?php __e('Source Code &mdash; Copy/Paste Into Your Website') ?></a><br />
+            <textarea style="width:90%; display:none; margin-top: 1em;"><?php echo $this->escape($bannerRenderer->getPreview()); ?></textarea>
+        </div>
+        <div class="aff-banner-preview-preview">
+            <div class="aff-banner-preview-preview-conteiner">
+            <?php echo $bannerRenderer->getPreview(); ?>
+            </div>
+        </div>
+    </div>
+</div>
+    <?php endforeach; ?>
+<?php else: // no banners ?> 
+<?php __e("No Banners and Links added by admin yet") ?>
+<?php endif; ?>
+
+
+
+<!-- aff downloads -->
+<?php if (count($affDownloads)) : ?>
+<h2><?php __e('Marketing Materials') ?></h2>
+<ul>
+    <?php foreach ($affDownloads as $download) : ?>
+    <li><a href="<?php echo ROOT_URL . '/file/download/path/' . $download->getPath() ?>"><?php echo $this->escape($download->getName()) ?></a>
+            <?php if ($download->desc) : ?>
+        <br /><small><?php __e($download->desc) ?></small>
+            <?php endif; ?>
+    </li>
+    <?php endforeach; ?>
+</ul>
+<?php endif; ?>
+<?php echo $this->blocks('aff/links/bottom') ?>

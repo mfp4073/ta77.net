@@ -1,0 +1,184 @@
+<?php
+$title = ___("User Groups");
+$this->setLayout('admin/layout.phtml');
+
+function renderNode(UserGroup $c, Am_View $view) {
+    $out = sprintf("<li id='cat-%d'><div>
+        <div class='tree-actions'>
+        <a title='Edit' href='javascript:' class='edit'>%s</a>
+        <a title='Add Child' href='javascript:' class='add'>%s</a>
+        <a title='Delete' href='javascript:' class='del'>%s</a>
+        </div>
+        <span class='text'>%s</span></div>
+        \n", $c->pk(),
+            $view->icon('edit'),
+            $view->icon('add'),
+            $view->icon('delete'),
+            Am_Controller::escape($c->title)
+    );
+    $out .= "<ul>";
+    foreach ($c->getChildNodes() as $child)
+        $out .= renderNode($child, $view);
+    $out .="</ul>";
+    $out .= "</li>\n";
+    return $out;
+}
+function getNodeData(UserGroup $c, & $data) {
+    $data[$c->pk()] = $c->toArray();
+    foreach ($c->getChildNodes() as $child)
+        getNodeData($child, $data);
+}
+?>
+<ul class="product-categories">
+<?php
+foreach ($groups as $c) {
+    echo renderNode($c, $this);
+}
+$data = array();
+foreach ($groups as $c) {
+    getNodeData($c, $data);
+}
+?>
+</ul>
+
+<!-- template for creating new nodes -->
+<ul style="display: none">
+<?php
+$pc = $di->userGroupRecord;
+$pc->user_group_id = '999';
+$pc->title = "TITLE";
+echo str_replace('999', 'TPL', renderNode($pc, $this));
+?>
+</ul>
+<br />
+<input type="button" class="add-root" value="Add New Category" />
+<script type="text/javascript">
+    var categories = <?php echo Am_Controller::getJson($data); ?> ;
+</script>
+<div id="category-window" style="display:none">
+    <div class="am-form">
+        <form method="post" action="<?php $this->pUrl(null, 'save') ?>">
+            <div class="row">
+                <div class="element-title"><label for="product-category-title"><?php __e('Title') ?></label></div>
+                <div class="element"><input type="text" id="product-category-title" name="title" size="40" /></div>
+            </div>
+            <div class="row">
+                <div class="element-title"><label for="product-category-description"><?php __e('Description') ?></label></div>
+                <div class="element">
+                    <textarea id="product-category-description" cols="40" rows="3" name="description"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="element-title"><label for="product-category-sort"><?php __e('Sort') ?></label></div>
+                <div class="element">
+                    <input type="text" id="product-category-sort" name="sort_order" size="4" value="0" />
+                </div>
+            </div>
+            <input type="hidden" name="parent_id" />
+            <input type="hidden" name="user_group_id" />
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function(){
+        var frm = $("#category-window form");
+        function findRoot(id)
+        {
+            var found  = $("#cat-"+id+" > ul");
+            if (found.length) return found;
+            return $("ul.product-categories");
+        }
+        $("#category-window").dialog({
+            buttons: {
+                'Ok' : function() {
+                    frm.ajaxSubmit({
+                        success: function(responseText){
+                            var data = $.parseJSON(responseText);
+                            var id = data.user_group_id;
+                            if (categories[id]) // existing category updated
+                            {
+                                $('#cat-'+id+' > div span.text').text(data.title);
+                            } else { // new category added
+                                var tpl = $("li#cat-TPL").html();
+                                tpl = tpl.replace(/TITLE/, data.title);
+                                findRoot(data.parent_id).append('<li id="cat-'+id+'">' + tpl + '</li>');
+                            }
+                            categories[id] = data;
+                            $("#category-window").dialog("close");
+                        },
+                        clearForm: true
+                    });
+                },
+                'Cancel' : function() { $(this).dialog("close"); }
+            },
+            modal : true,
+            title : "Edit Category",
+            width: 600,
+            autoOpen: false
+        });
+        $(".product-categories a.edit").live("click", function(){
+            frm[0].reset();
+            frm.find('input[type=hidden]').val(""); //reset do not affect hidden fields
+            var li = $(this).closest("li");
+            var id = parseInt(li.attr("id").replace(/cat-/, ''));
+            var record = categories[id];
+            if (!record) return; // ????
+            for (k in record)
+            {
+                var found = frm.find('input[name="'+k+'"]');
+                if (!found.length){
+                    found = frm.find('textarea[name="'+k+'"]');
+                    if (!found.length) continue;
+                }
+                found.val(record[k]);
+            }
+            $("#category-window").dialog("option", "title", "Edit Category").dialog("open");
+        });
+        $(".product-categories a.add").live("click", function(){
+            var li = $(this).closest("li");
+            var id = parseInt(li.attr("id").replace(/cat-/, ''));
+            frm[0].reset();
+            frm.find('input[type=hidden]').val(""); //reset do not affect hidden fields
+            $("input[name='parent_id']").val(id);
+            $("#category-window").dialog("option", "title", "Add Category").dialog("open");
+        });
+        $("input.add-root").live("click", function(){
+            frm[0].reset();
+            frm.find('input[type=hidden]').val(""); //reset do not affect hidden fields
+            $("#category-window").dialog("option", "title", "Add Category").dialog("open");
+        });
+        $(".product-categories a.del").live("click", function(){
+            if (confirm("Do you really want to delete category?"))
+            {
+                var li = $(this).closest("li");
+                var id = parseInt(li.attr("id").replace(/cat-/, ''));
+                $.ajax({
+                    url : window.rootUrl + '/admin-user-groups/del/id/' + id,
+                    method: 'post',
+                    success: function(responseText)
+                    {
+                        if (responseText != "OK")
+                        {
+                            flashError("Error deleting record! Please refresh page and try again");
+                            return;
+                        }
+                        $("li#cat-" + id + " > ul > li").detach().appendTo(li.closest("ul"));
+                        li.remove();
+                    }
+                });
+            }
+        });
+        $("a.generate-pass").click(function(){
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz";
+            var pass = "";
+            length = 10;
+            for(i=0;i<length;i++)
+            {
+                x = Math.floor(Math.random() * 62);
+                pass += chars.charAt(x);
+            }
+            $(this).closest('.row').find("input").val(pass);
+        });
+    });
+</script>

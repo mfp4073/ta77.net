@@ -1,0 +1,100 @@
+<table_data name="email_template">
+   <row type="email_template">
+        <field name="name">cc.admin_rebill_stats</field>
+        <field name="lang">en</field>
+        <field name="format">text</field>
+        <field name="subject">%site_title% - %plugin% Rebill Statistics (%short_stats%)</field>
+        <field name="txt">Hello,
+
+Outlined below are the results of latest rebilling attempt on  %site_title% 
+
+Here you can find statistics about SUCCESS rebills 
+===
+%rebills_success%
+
+
+Here you can find statistics about FAILED rebills 
+=== 
+%rebills_failed%
+
+--
+Best Regards,
+%site_title%
+%root_url%
+        </field>
+    </row>
+    
+   <row type="email_template">
+        <field name="name">cc.rebill_failed</field>
+        <field name="lang">en</field>
+        <field name="format">text</field>
+        <field name="subject">%site_title% Subscription Renewal Failed</field>
+        <field name="txt">Hello %user.name_f% %user.name_l%,
+
+Your subscription was not renewed automatically by membership system
+due to payment failure: %error%
+
+%prorate%
+
+You may update your credit card info here:.
+%root_url%/member
+
+Thank you for attention!
+
+--
+Best Regards,
+%site_title%
+%root_url%
+        </field>
+    </row>
+
+    <row type="email_template">
+        <field name="name">cc.rebill_success</field>
+        <field name="lang">en</field>
+        <field name="format">text</field>
+        <field name="subject">%site_title% Subscription Renewed</field>
+        <field name="txt">Hello %user.name_f% %user.name_l%,
+        
+Your subscription has been renewed automatically by our membership system.
+Your credit card was charged %amount%
+        
+Next renewal date: %rebill_date%
+        
+You may login to membership info page at :
+%root_url%/member
+
+Thank you!
+
+--
+Best Regards,
+%site_title%
+%root_url%
+        </field>
+    </row>
+    
+    <row type="email_template">
+        <field name="name">cc.card_expire</field>
+        <field name="lang">en</field>
+        <field name="format">text</field>
+        <field name="subject">Credit Card Expiration</field>
+        <field name="txt">Hello %user.name_f% %user.name_l%,
+    
+Your credit card that we have on file for recurring billing will expire
+on %expires%. Next recurring billing for invoice %invoice.public_id%
+is sheduled for %invoice.rebill_date|date%.
+        
+To avoid any interruption of your subscription, please visit page
+%root_url%/member
+and update your credit card information..
+
+Thank you!
+
+--
+Best Regards,
+%site_title%
+%root_url%
+        </field>
+    </row>
+    
+    
+</table_data>

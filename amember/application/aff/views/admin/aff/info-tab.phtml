@@ -1,0 +1,53 @@
+<?php 
+$this->setLayout('admin/user-layout.phtml'); 
+$title = "Affiliate Information";
+$this->enableReports();
+
+?>
+<div>
+<?php echo $form; ?>
+</div>
+
+<?php echo $report; ?>
+<br />
+<h1>Report</h1>
+<div class="grid-container">
+<table class="grid">
+<tr>
+    <th><?php __e("Date") ?></th>
+    <th><?php __e("Commission earned") ?></th>
+    <th><?php __e("Clicks") ?></th>
+</tr>
+<?php
+/* @var $result Am_Report_Result */
+
+$lines = $result->getLines();
+foreach ($result->getPoints() as $r):
+if (!$r->hasValues()) continue;
+/* @var $r Am_Report_Point */
+print "<tr>";
+printf("    <td>%s</td>\n", $r->getLabel());
+foreach ($lines as $line)
+    printf("    <td><a href='javascript:affDetail(\"%s\")' class='aff-detail'>%s</a></td>\n", $r->getKey(), $r->getValue($line->getKey()));
+print "</tr>";
+endforeach;
+?>
+</table>
+</div>
+
+<div id="aff-detail">
+</div>
+
+<script type="text/javascript">
+function affDetail(date)
+{
+    jQuery("#aff-detail").dialog({
+        width: 700,
+        heigth: 300,
+    });
+    var url = "<?php j($this->pUrl(
+            'admin', 'info-tab-detail', 'aff', 'user_id', $this->user_id,
+            'date', 'DATE'))?>";
+    jQuery("#aff-detail").load(url.replace(/DATE/, date));
+}
+</script>

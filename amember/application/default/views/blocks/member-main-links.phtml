@@ -1,0 +1,7 @@
+<ul>
+<li><a href="<?php echo ROOT_URL ?>/logout"><?php __e('Logout') ?></a></li>
+<li><a href="<?php echo ROOT_URL ?>/profile"><?php __e('Change Password/Edit Profile') ?></a></li>
+<?php foreach ($member_links as $u=>$t): ?>
+<li><a href="<?php p($u) ?>"><?php echo $t ?></a></li>
+<?php endforeach ?>
+</ul>

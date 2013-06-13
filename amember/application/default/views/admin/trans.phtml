@@ -1,0 +1,17 @@
+<?php
+$this->layoutNoTitle = true;
+$this->setLayout('admin/layout.phtml');
+?>
+<?php include $this->_script('admin/_error.phtml'); ?>
+
+<?php if (isset($form)) {
+    echo '<h1>';
+    p($title);
+    echo ' <span class="red"><a href="', $back_url, '">(return)</a></span>';
+    echo '</h1>';
+} ?>
+
+
+<div id="form-wrap">
+<?php echo @$form ?>
+</div>

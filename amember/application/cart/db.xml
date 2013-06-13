@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema version="4.0.0">
+  <table name="product">
+    <field name="img" type="int" />
+    <field name="img_path" type="varchar" len="255"/>
+    <field name="cart_description" type="text"/>
+  </table>
+</schema>

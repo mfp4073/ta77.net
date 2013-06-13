@@ -1,0 +1,25 @@
+<?php if (empty($this->noLoginOffer)):?>
+<!-- login box on signup page widget -->
+<?php if (!Am_Di::getInstance()->auth->getUserId()):?>
+<div class="am-login-text"><?php __e("If you already have an account on our website, please %slogin%s to continue",
+        '<a href="'.REL_ROOT_URL.'/login?amember_redirect_url='.urlencode($_SERVER['REQUEST_URI']).'" class="ajax-link" data-popup-width="800px">', '</a>') ?></div>
+<?php else: // if logged-in ?>
+<div class="am-login-text">
+        <?php __e("You are logged-in as %s. %sLogout%s to signup as new user.",
+                "<strong>". Am_Di::getInstance()->auth->getUsername() . "</strong>",
+                "<a href='".REL_ROOT_URL."/logout?amember_redirect_url=".urlencode($_SERVER['REQUEST_URI'])."'>",
+                "</a>"
+        ); ?>
+</div>
+<?php endif // if not logged-in ?>
+<script type="text/javascript">
+jQuery(function($){
+    // setup new submit handler to form which will reload signup page after login
+    amAjaxLoginForm(".am-login-form form", {
+            success: function() { window.location.reload(true); }
+        }
+    );
+});
+</script>
+<!-- login box on signup page widget end -->
+<?php endif ?>

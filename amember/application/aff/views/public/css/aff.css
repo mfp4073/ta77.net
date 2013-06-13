@@ -1,0 +1,38 @@
+/* For developers: please do not edit .css file directly, edit sass file instead! */
+.aff-banner-preview {
+  color: #666666;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  margin-bottom: 1em;
+  padding: 1em;
+  box-shadow: 0 1px 1px #e0e0e0;
+  overflow: hidden;
+}
+.aff-banner-preview dt {
+  font-weight: bold;
+  float: left;
+}
+.aff-banner-preview dt:after {
+  content: ':';
+}
+
+.aff-banner-preview-info {
+  float: left;
+  width: 50%;
+}
+
+.aff-banner-preview-preview {
+  float: left;
+  width: 50%;
+}
+
+.aff-banner-preview-preview-conteiner {
+  padding-left: 1em;
+}
+
+.aff-banner-note {
+  padding: 1em;
+  margin-bottom: 1.5em;
+  background: #e0e0e0;
+}

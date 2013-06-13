@@ -1,0 +1,732 @@
+<?php 
+$this->setLayout('admin/user-layout.phtml'); 
+$title = ___("User Invoices");
+$pendingInvoicesBlock = false;
+foreach($invoices as $invoice)
+    if($invoice->getStatus() == Invoice::PENDING)
+    { 
+       $pendingInvoicesBlock = true;
+       break;
+    }
+?>
+<a class="button" style="float:right" href="<?php echo REL_ROOT_URL ?>/admin-user-payments/add-invoice/user_id/<?php echo $user_id ?>">Add Invoice</a>
+<h1>User Invoices</h1>
+<?php if($pendingInvoicesBlock) : ?><div class="pending-invoices"><a href="javascript:" class="show" style='display:none;'><?php __e('Display'); ?></a><a href="javascript:" class="hide" style='display:none;'><?php __e('Hide');?></a> <span class="count"></span> <?php __e('Pending Invoices');?></div><br/> <?php endif;?>
+<div class="user-invoices ui-accordion ui-widget ui-helper-reset ui-accordion-icons">
+<?php 
+if ($invoices): foreach (array_reverse($invoices) as $invoice) : 
+/* @var $invoice Invoice */    
+    $stateClass = ($invoice->getStatus()!=Invoice::PENDING) ? 'ui-state-default' : 'ui-state-disabled';
+?>
+<a name="invoice-<?php echo $invoice->invoice_id?>"></a>
+
+<div class="user-invoice-header <?php echo $stateClass;?> ui-corner-top">
+    #<b><?php echo $invoice->invoice_id ?>/<?php echo $invoice->public_id ?></b> <?php __e("Terms")?>:&nbsp;<?php echo new Am_TermsText($invoice) ?> 
+    
+    <div style="float: right; width: 30em; text-align: right;">
+        <?php if(!$invoice->isConfirmed()) : ?>
+        <a  href="<?php p(REL_ROOT_URL.'/admin-user-payments/approve/user_id/'.urlencode(  $invoice->user_id).'/?invoice_id='.$invoice->invoice_id); ?>"
+           ><small><?php __e('Approve')?></small></a>&nbsp;|&nbsp;
+         <?php endif; ?>
+        <a style="color:red;"  
+           href="<?php p(REL_ROOT_URL.'/default/admin-payments/p/invoices/index?_invoice_a=delete&_invoice_b='.urlencode( $this->url(array('user_id' => $invoice->user_id)) ).'&_invoice_id='.$invoice->invoice_id); ?>"
+           ><small><?php __e('Delete')?></small></a>&nbsp;|&nbsp;
+           <a class="invoice-log" 
+           href="<?php p(REL_ROOT_URL.'/admin-user-payments/log/invoice_id/'.$invoice->invoice_id) ?>"
+           ><small><?php __e('Transactions Log')?></small></a>
+           <br />
+        <?php $this->invoice = $invoice ?>   
+        <?php echo $this->blocks('admin/user/invoice/right') ?>   
+    </div>
+    
+    <br />
+    created at <i><?php echo amDateTime($invoice->tm_added)?></i>
+    <?php if ($invoice->isPaid()):?>, <?php __e("first paid at")?> <i><?php echo amDateTime($invoice->tm_started) ?></i><?php endif?>
+    
+    <?php if ($invoice->coupon_id && ($coupon = Am_Di::getInstance()->couponTable->load($invoice->coupon_id, false))): ?>
+    <?php echo "".___("Coupon").": " . $coupon->code ?>
+    <?php endif ?>
+
+    <?php if ($invoice->comment): ?>
+    <br />
+    <?php echo "" . $invoice->comment ?>
+    <?php endif ?>
+    <br />
+    <?php 
+        echo "<b class='invoice-status-text'>".$invoice->getStatusTextColor()."</b>";
+        if(
+            ($invoice->status==Invoice::RECURRING_ACTIVE) && 
+            ($paysys = $invoice->getPaysystem()) && 
+            ($paysys->getRecurringType() == Am_Paysystem_Abstract::REPORTS_CRONREBILL)
+            ){
+            
+            printf("&nbsp;&nbsp;Next rebill date: 
+                <a class = 'change-rebill-date' href='#' title='Change rebill date' 
+                data-invoice_id='%s' 
+                data-rebill_date='%s'
+                style='color: blue; text-decoration: underline;' >%s</a>", 
+                $invoice->invoice_id, amDate($invoice->rebill_date), amDate($invoice->rebill_date));
+        }
+        if (!empty($invoice->_cancelUrl))
+        {
+            printf("&nbsp;&nbsp;<a href='%s' target='_blank' class='stop-recurring'
+                style='color: blue; text-decoration: underline;'>%s</a>", 
+                $this->escape($invoice->_cancelUrl), ___("Stop Recurring"));
+        }
+        elseif(defined('AM_ALLOW_RESTART_CANCELLED') && $invoice->isCancelled())
+        {
+            printf("&nbsp;&nbsp;<a href='%s' target='_blank' class='start-recurring'
+                style='color: blue; text-decoration: underline;'>%s</a>", 
+                REL_ROOT_URL.'/admin-user-payments/start-recurring/user_id/'.$invoice->user_id.'?invoice_id='.$invoice->invoice_id, ___("Restart Recurring"));
+        }
+        ?>
+    <span class="small expand-details">&nbsp;[<span class="open"><?php __e("expand details")?></span><span class="close" style="display:none"><?php __e("collapse details")?></span>]</span>
+</div>
+<div class="user-invoice-record">
+    <!-- products -->
+    <table width="100%">
+    <tr><td width="45%" valign="top">
+        <i><?php __e("Products")?></i><br />
+        <div class="grid-container">
+        <table class="grid grid-small">
+            <tr>  
+              <th>#</th>
+              <th><?php __e("Title")?></th>
+              <th><?php __e("First Price")?></th>
+              <?php if ($invoice->rebill_times): ?><th><?php __e("Second Price")?></th><?php endif ?>
+            </tr>
+            <?php foreach ($invoice->getItems() as $item): /* @var $item InvoiceItem */?>
+            <tr>
+                <td class="align-right"><?php p($item->item_id) ?></td>
+                <td class="align-right">
+                    <?php if ($item->qty != 1) echo "<i>$item->qty pcs -</i> "?>
+                    <?php p($item->item_title) ?> <a href="javascript:" class="replace-product" data-invoice_item_id="<?php echo $item->invoice_item_id ?>">[X]</a></td>
+                <td class="align-right"><?php echo $invoice->getCurrency($item->first_price) ?></td>
+                <?php if ($invoice->rebill_times): ?><td><?php echo $invoice->getCurrency($item->second_price) ?></td><?php endif ?>
+            </tr>
+            <?php endforeach ?>
+            <?php if (($invoice->first_shipping+$invoice->second_shipping) > 0): ?>
+            <tr>
+                <td class="align-right"></td>
+                <td class="align-right"><?php __e("Shipping")?></td>
+                <td class="align-right"><?php echo $invoice->getCurrency($invoice->first_shipping) ?></td>
+                <?php if ($invoice->rebill_times): ?><td><?php echo $invoice->getCurrency($invoice->second_shipping) ?></td><?php endif ?>
+            </tr>
+            <?php endif ?>
+            <?php if (($invoice->first_tax+$invoice->second_tax) > 0): ?>
+            <tr>
+                <td class="align-right"></td>
+                <td class="align-right"><?php __e("Tax Amount")?></td>
+                <td class="align-right"><?php echo $invoice->getCurrency($invoice->first_tax) ?></td>
+                <?php if ($invoice->rebill_times): ?><td><?php echo $invoice->getCurrency($invoice->second_tax) ?></td><?php endif ?>
+            </tr>
+            <?php endif ?>
+        </table>
+        </div>
+    </td>
+    <td width="10%">
+        &nbsp;
+    </td>
+    <!-- payments -->
+    <td width="45%" valign="top">
+        <i><?php __e("Payments")?></i><br />
+        <div class="grid-container">
+        <table class="grid grid-small">
+           <tr> 
+            <th>#</th>
+            <th><?php __e("Date")?></th>
+            <th><?php __e("Paysystem")?></th>
+            <th><?php __e("Receipt")?></th>
+            <th><?php __e("Amount")?></th>
+            <?php if ($di->config->get('send_pdf_invoice')): ?>
+            <th><?php __e('PDF Invoice') ?></th>
+            <?php endif; ?>
+            <th>&nbsp;</th>
+           </tr>
+        <?php foreach ($invoice->getRefundRecords() as $payment): /* @var $payment InvoiceRefund */?>
+        <tr class="red">
+            <td><?php p($payment->invoice_refund_id) ?></td>
+            <td><?php echo amDateTime($payment->dattm) ?></td>
+            <td><?php echo $invoice->paysys_id ?></td>
+            <td><?php echo $payment->receipt_id ?></td>
+            <td class="align-right">-&nbsp;<?php echo $invoice->getCurrency($payment->amount) ?></td>
+            <?php if ($di->config->get('send_pdf_invoice')): ?>
+            <td>&nbsp;</td>
+            <?php endif; ?>
+            <td>
+                (refund)
+            </td>
+        </tr>    
+        <?php endforeach ?>
+        <?php $count = 0; foreach ($invoice->getPaymentRecords() as $payment): /* @var $payment InvoicePayment */?>
+        <tr>
+            <td><?php p($payment->invoice_payment_id) ?></td>
+            <td><?php echo amDateTime($payment->dattm) ?></td>
+            <td><?php echo $invoice->paysys_id ?></td>
+            <td><?php echo $payment->receipt_id ?></td>
+            <td class="align-right"><?php echo $invoice->getCurrency($payment->amount) ?></td>
+            <?php if ($di->config->get('send_pdf_invoice')): ?>
+            <td>
+            <a href="<?php p(REL_ROOT_URL.'/admin-user-payments/invoice/payment_id/'.$payment->pk()) ?>"><?php __e('Invoice') ?></a>
+            </td>
+            <?php endif; ?>
+            <td>
+                <?php  if ($payment->isRefunded()): ?>
+                <span class="red"><?php __e("Refunded")?></span>    
+                <?php else:
+                
+                $refundDisplayed = false;    
+                try {
+                if (Am_Di::getInstance()->plugins_payment->isEnabled($payment->paysys_id) 
+                    && ($ps = Am_Di::getInstance()->plugins_payment->get($payment->paysys_id)) 
+                    && $ps->isRefundable($payment)): ?>
+                <a href="javascript:" data-amount="<?php echo $payment->amount?>" class="refund-button" id="refund-button-<?php echo $payment->invoice_payment_id?>"><?php __e("Refund")?></a>
+                <?php $refundDisplayed = true;
+                endif ;
+                } catch (Am_Exception $e) { echo $e->getMessage(); } 
+                
+                if (!$refundDisplayed): ?>
+                <a href="javascript:" data-amount="<?php echo $payment->amount?>" class="refund-button refund-button-manual" id="refund-button-<?php echo $payment->invoice_payment_id?>"><?php __e("Refund")?></a>
+                <?php
+                endif; // if !$refundDisplayed
+                endif; // if paysystemCanRefund
+                ?>
+            </td>
+        </tr>    
+        <?php $count++; endforeach ?>
+        </table>
+        </div>
+        <?php if ($count < $invoice->rebill_times+1): 
+            
+        $suggestedAmount = 0.0;
+        if ($invoice->getStatus() != Invoice::PENDING)
+            $suggestedAmounts = "[$invoice->second_total]";
+        else
+            $suggestedAmounts = "[$invoice->first_total]";
+        ?>
+        <a href="#" class="add-payment-link" 
+           data-paysys_id="<?php echo $invoice->paysys_id?>" 
+           data-amounts="<?php echo $suggestedAmounts?>" 
+           data-invoice_id="<?php echo $invoice->invoice_id ?>"
+           id="add-payment-link-<?php echo $invoice->invoice_id ?>"><?php __e("Add Payment Manually")?></a>
+        <?php endif ?>
+    </td>
+    </tr></table>
+</div>
+<?php endforeach; else: // no invoices ?>
+<?php __e("No Invoices Found")?>
+<?php endif ?>
+</div> <!-- user-invoices -->
+
+<div id="user-access-info">
+<hr />
+<h1>User Access</h1>
+<div class="user-access-title" data-status=".access-1,.access-2"><?php __e("User currently has access to the following products")?>( <a href="javascript:"><?php __e("switch to show all records")?></a>):</div>
+<div class="user-access-title" style="display:none;" data-status=".access-0,.access-1,.access-2"><?php __e("User had access to the following products")?> (<a href="javascript:"><?php __e("switch to show only active records")?></a>):</div>
+<br />
+<form <?php echo $accessForm->_attributes?> >
+<div class="grid-container">
+<table class="grid">
+<tr>
+    <th><b><?php __e("Product")?></b></th>
+    <th><b><?php __e("From")?></b></th>
+    <th><b><?php __e("To")?></b></th>
+    <th><b><?php __e("Status")?></b></th>
+    <th><b><?php __e("Source")?></b></th>
+    <th></th>
+</tr>
+<?php $trAccessStatus = 
+            array(
+                Access::EXPIRED => '<i>'.___('Expired').'</i>', 
+                Access::ACTIVE  => '<b>' . ___('Active').'</b>',
+                Access::FUTURE  => '<i><b>'.___('Future').'</b></i>',
+            ); ?>
+<?php $iconDelete = $this->icon('delete', 'Delete') ?>
+<?php foreach ($accessRecords as $access): $access = (object)$access; ?>
+<tr class="access access-<?php echo $access->getStatus()?>" <?php if ($access->getStatus() == 0) echo 'style="display:none"'?>>
+    <td><?php echo '#'. $access->product_id . ' - ' . $access->product_title; ?>
+    <?php if($access->data()->get('ORIGINAL_BEGIN_DATE') || $access->data()->get('ORIGINAL_EXPIRE_DATE')) : ?>
+        <div><i>Record modified, original dates: 
+            <?php echo amDate($access->data()->get('ORIGINAL_BEGIN_DATE') ? $access->data()->get('ORIGINAL_BEGIN_DATE') : $access->begin_date)?>
+            -
+            <?php echo amDate($access->data()->get('ORIGINAL_EXPIRE_DATE') ? $access->data()->get('ORIGINAL_EXPIRE_DATE') : $access->expire_date)?>
+            </i></div>
+    <?php endif ?>
+    </td>
+    <td class="live-edit-date" data-access_id="<?php echo $access->access_id;?>" data-field="begin_date"><div class="editable"></div>
+        <span class="live-edit"><?php echo $access->begin_date ? amDate($access->begin_date) : "" ?></span>
+    </td>
+    <td class="live-edit-date" data-access_id="<?php echo $access->access_id;?>" data-field="expire_date"><div class="editable"></div>
+        <span class="live-edit"><?php 
+    if ($access->expire_date == Am_Period::MAX_SQL_DATE)
+        __e('Lifetime');
+    elseif ($access->expire_date == Am_Period::RECURRING_SQL_DATE)
+        __e('Recurring');
+    else    
+        echo $access->expire_date ? amDate($access->expire_date) : "" ; ?></span></td>
+    <td><?php echo $trAccessStatus[$access->getStatus()]; ?></td>
+    <td>
+        <?php echo $access->invoice_id ? "Invoice <a class='invoice-link' href='#invoice-{$access->invoice_id}'>$access->invoice_id</a>" : ___("Manually Added") ?>
+        <?php if ($access->comment) : ?>
+        <br /><strong><?php p($access->comment) ?></strong>
+        <?php endif; ?>
+    </td>
+    <td><?php echo $access->invoice_id ? "&nbsp;" : "<a href='javascript:' class='access-delete' id='access-delete-$access->access_id' title='Delete'>$iconDelete</a>"; ?></td>
+</tr>
+<?php endforeach; ?>
+<tr>
+    <td><?php echo $accessForm->product_id ?><br /><br />
+    <?php __e('Comment for Your Reference') ?> : <?php echo $accessForm->comment ?>
+    </td>
+    <td><?php echo $accessForm->begin_date ?></td>
+    <td><?php echo $accessForm->expire_date ?></td>
+    <td colspan="3"><?php echo $accessForm->save ; echo $accessForm->_hidden; ?></td>
+</tr>
+</table>
+</div>
+</form>
+</div>
+
+<div class="add-payment-payment" style="display: none; width: 700px;">
+    <?php echo $addForm; ?>
+</div>
+
+<div class="refund-payment" style="display: none; width: 700px;">
+    <?php __e("Do you really want to refund payment")?> #<span class="refund-payment-id"></span>?
+    
+    <div class="auto"><p><?php __e("We will submit a request to payment system ".
+    "or you will be redirected to payment system page ".
+    "to submit refund request")?></p>
+    </div>
+    
+    <div class="manual">
+    <p><?php __e("Refunds are not implemented for this payment ".
+    "system, so you can manually mark payment as refunded or charged-back.".
+    "Access will be revoked immediately.")?></p>
+    <label><?php __e('Refund Type')?></label>
+    <select name="refund_type" id="refund-type">
+        <option value="refund"><?php __e('Add Refund')?></option>
+        <option value="chargeback"><?php __e('Add Chargeback')?></option>
+        <option value="correction"><?php __e('Delete payment and access record')?></option>
+    </select>
+    </div>
+    
+    <label for="refund-amount"><?php __e("Refund Amount")?></label> 
+    <input type="text" readonly="readonly" id="refund-amount" size="8" />
+</div>
+
+<div id="replace-product"></div>
+<div id="stop-recurring"></div>
+<div id="start-recurring"></div>
+<div id="change-rebill-date"></div>
+<script type="text/javascript">
+window.user_id = <?php echo $user_id?>;
+
+$(function(){
+
+function convertDate(val){
+    if(val == 'Recurring')
+        return '<?php echo Am_Period::RECURRING_SQL_DATE;?>';
+    if(val == 'Lifetime')
+        return '<?php echo Am_Period::MAX_SQL_DATE;?>';
+    return val;
+}
+$('.live-edit-date').live('click',function(){
+    var td = $(this);
+    if(td.data('mode') == 'edit') return;
+    td.data('mode', 'edit');
+    var txt = td.find('span.live-edit');
+    txt.hide();
+    td.find('.editable').hide();
+    td.data('prev_value',convertDate(txt.text()));
+    var input = td.find('input.live-edit');
+    if(!input.length){
+        input = $('<input type="text" name="_access_begin_date" class="live-edit">');
+        input.appendTo(td);
+    }
+    input.show().val(convertDate(td.find('span.live-edit').text())).datepicker({
+                defaultDate: window.uiDefaultDate,
+                dateFormat:window.uiDateFormat,
+                changeMonth: true,
+                changeYear: true,
+                shortYearCutoff : 99,
+                onClose : function(text, dp){
+                    var parent = $(this).parent('td');
+                    parent.data('mode', 'display');
+                    parent.find('span.live-edit').show().text($(this).val());
+                    parent.find('.editable').show();
+                    if(text && (text != parent.data('prev_value'))){
+                        data = {
+                            'access_id' :   td.data('access_id'),
+                            'field'     :   td.data('field'),
+                            'access_date' : $(this).datepicker("getDate").toString()
+                        }
+                        $.post('<?php echo REL_ROOT_URL . '/admin-user-payments/change-access-date/user_id/';?>'+window.user_id, data,
+                        function(data){
+                            if(!data.success){
+                                flashError(data.error); return false;
+                            }
+                            if(data.reload)
+                                window.location.reload();
+                        }
+                    );
+                    }
+                    $(this).remove();
+                        
+                }
+            }).focus();
+            
+});
+$(".user-invoices .user-invoice-header a").click(function(event){
+    event.stopPropagation();
+});
+
+$('select[name=product_id]').live('change', function(){
+    if ($(this).val()) {
+        $.post(window.rootUrl + '/admin-user-payments/calculate-access-dates',
+            {
+                'user_id' : window.user_id,
+                'product_id' : $(this).val()
+            }, function(data, textStatus, jqXHR){
+                $('input[name=begin_date]').datepicker('setDate', new Date(data.begin_date.replace(/-/g,"/")+" 01:00:00"));
+                $('input[name=expire_date]').datepicker('setDate', new Date(data.expire_date.replace(/-/g,"/")+" 01:00:00"));
+                $('input[name=expire_date]').datepicker("option", "shortYearCutoff", 99);
+            })
+    }
+})
+
+<?php if($pendingInvoicesBlock) : ?>
+function togglePendingInvoices(display){
+    if(!display){
+        $(".user-invoices .ui-state-disabled").hide();
+        $(".pending-invoices")
+        .find(".count").html(pendings = $(".user-invoices .ui-state-disabled").length);
+        if(pendings) $(".pending-invoices .show").toggle(true);
+        $(".pending-invoices .hide").toggle(false);
+    }else{
+        $(".user-invoices .ui-state-disabled").show();
+        $(".pending-invoices .show").toggle(false);
+        $(".pending-invoices .hide").toggle(true);
+    }
+}
+
+togglePendingInvoices(false);
+
+$('.pending-invoices .show,.hide').click(function(e){
+    e.preventDefault();
+    togglePendingInvoices($(this).hasClass('show') ? true : false);
+});
+<?php endif; ?>
+    
+$('.user-invoices .user-invoice-header').click(function() {
+    var open = $(this).next().is(":visible");
+    $(this).find(".expand-details .open").toggle(open);
+    $(this).find(".expand-details .close").toggle(!open);
+    $(this).next().slideToggle('fast');
+    return false;
+}).next().hide();
+
+
+$(".change-rebill-date").click(function(event){
+    event.stopPropagation();
+    var link = $(this);
+    $("#change-rebill-date").html('<?php j(___("Do you really want to change Rebill Date for this invoice?"))?>'+
+        '<br/><br/>'+
+        '<?php j(___("Please specify new rebill date: "))?>'
+);
+    var input = $('<input class="datepicker" type="text" name="rebill_date" value="" id="rebill-date-picker">');
+    input.appendTo($("#change-rebill-date")).val(link.data('rebill_date'));
+    input.datepicker({
+        dateFormat:window.uiDateFormat,
+        changeMonth: true,
+        changeYear: true
+
+    });
+$("#change-rebill-date").dialog({
+        autoOpen: true
+        ,width: 500
+        ,buttons: {
+            "Change" : function(){
+                $.ajax({
+                  type: 'POST'
+                  ,url: window.rootUrl + "/admin-user-payments/change-rebill-date/user_id/"+window.user_id+"/invoice_id/"+link.data('invoice_id')
+                  ,data: {
+                      'rebill_date' : $('#rebill-date-picker').val()
+                  }
+                  ,success: function(data, textStatus, request)
+                  {
+                    if (data.ok)
+                    {
+                        link.data('rebill_date', $('#rebill-date-picker').val());
+                        link.html($('#rebill-date-picker').val());
+                    } else {
+                        alert("<?php j(___('Unable to change rebill date'))?>: ", + data.msg);
+                    }
+                    $("#change-rebill-date").dialog("close");
+                  }
+                });
+
+            }
+            ,"Cancel" : function(){
+                $(this).dialog("close");
+            }
+        }
+        ,closeOnEscape: true
+        ,title: "<?php j(___("Change Invoice Rebill Date "))?>"
+        ,modal: true
+    });
+    return false;
+   
+   
+});
+$(".stop-recurring").click(function(event)
+{
+    event.stopPropagation();
+    var link = this;
+    $("#stop-recurring").html('<?php j(___("Do you really want to stop this subscription?"))?>');
+    $("#stop-recurring").dialog({
+        autoOpen: true
+        ,width: 500
+        ,buttons: {
+            "OK" : function(){
+                var url = link.href;
+                $.ajax({
+                  type: 'GET'
+                  ,url: url
+                  ,success: function(data, textStatus, request)
+                  {
+                    if (data.ok)
+                    {
+                        $(link).parent().find(".invoice-status-text").html("<font color='red'><?php j(___("Recurring Cancelled"))?></font>");
+                        $(link).remove();
+                    } else {
+                        if (data.redirect) 
+                            window.location.href = data.redirect;
+                        else
+                            alert("<?php j(___('Unable to cancel subscription'))?>: ", + data.msg);
+                    }
+                    $("#stop-recurring").dialog("close");
+                  }
+                });
+
+            }
+            ,"Cancel" : function(){
+                $(this).dialog("close");
+            }
+        }
+        ,closeOnEscape: true
+        ,title: "<?php j(___("Cancel Subscription"))?>"
+        ,modal: true
+    });
+    return false;
+});
+$(".start-recurring").click(function(event)
+{
+    event.stopPropagation();
+    var link = this;
+    $("#start-recurring").html('<?php j(___("Do you really want to restart this subscription?"))?>');
+    $("#start-recurring").dialog({
+        autoOpen: true
+        ,width: 500
+        ,buttons: {
+            "OK" : function(){
+                var url = link.href;
+                $.ajax({
+                  type: 'GET'
+                  ,url: url
+                  ,success: function(data, textStatus, request)
+                  {
+                    if (data.ok)
+                    {
+                        $(link).parent().find(".invoice-status-text").html("<font color='green'><?php j(___("Recurring Active"))?></font>");
+                        $(link).remove();
+                    } else {
+                        if (data.redirect) 
+                            window.location.href = data.redirect;
+                        else
+                            alert("<?php j(___('Unable to restart subscription'))?>: ", + data.msg);
+                    }
+                    $("#start-recurring").dialog("close");
+                  }
+                });
+
+            }
+            ,"Cancel" : function(){
+                $(this).dialog("close");
+            }
+        }
+        ,closeOnEscape: true
+        ,title: "<?php j(___("Restart Subscription"))?>"
+        ,modal: true
+    });
+    return false;
+});
+ 
+$(".refund-button").click(function()
+{
+    var id = $(this).attr('id').replace(/refund-button-/, '');
+    var manual = $(this).hasClass('refund-button-manual');
+    var link = this;
+    $(".refund-payment-id").text(id);
+    $(".refund-payment .manual").toggle(manual);
+    $(".refund-payment .auto").toggle(!manual);
+    $(".refund-payment input#refund-amount").val($(this).data('amount'));
+    $(".refund-payment").dialog({
+        autoOpen: true
+        ,width: 700
+        ,buttons: {
+            "OK" : function(){
+                var url = window.rootUrl + "/admin-user-payments/refund/user_id/"+window.user_id+"/invoice_payment_id/" + id;
+                $.ajax({
+                  type: 'POST'
+                  ,url: url
+                  ,data : { 
+                      amount : $(".refund-payment input#refund-amount").val(),
+                      type: $(".refund-payment select#refund-type:visible").val(),
+                      manual : 0+manual
+                  }
+                  ,success: function(data, textStatus, request)
+                  {
+                    window.location.reload();
+                    $(link).after("<span>Refunded</span>").remove();
+                    $(".refund-payment").dialog("close");
+                  }
+                });
+
+            }
+            ,"Cancel" : function(){
+                $(this).dialog("close");
+            }
+        }
+        ,closeOnEscape: true
+        ,title: "<?php j(___("Refund Payment"))?>"
+        ,modal: true
+    });
+});
+function ajaxifyAddForm()
+{
+    var frm = $(".add-payment-payment form");
+    frm.ajaxForm({
+        target: '.add-payment-payment div.am-form'
+        ,beforeSubmit: function(arr, form, options) { 
+            $("input[type='submit']", $(form)).val("<?php j(___("Submitting..."))?>").attr("disabled", "disabled");
+            return true;
+        }
+        ,success: function() {
+            ajaxifyAddForm(); 
+            if ($(".add-payment-payment input[name='saved-ok']").length)
+                window.location.reload();
+        }
+    });
+}
+$(".replace-product").click(function()
+{
+    var $this = $(this);
+    var id = $this.data('invoice_item_id');
+    $("#replace-product").html("Loading...")
+        .load(window.rootUrl + "/admin-user-payments/replace-product?id="+id+"&user_id="+window.user_id);
+    $("#replace-product").dialog({
+        autoOpen: true
+        ,width: 500
+        ,buttons: {
+        }
+        ,closeOnEscape: true
+        ,title: "<?php j(___("Replace Product"))?>"
+        ,modal: true
+    });    
+});
+$("#replace-product-form").live('submit', function() {
+    $(this).ajaxSubmit({success: function(data){
+            if (data.ok) 
+                window.location.reload();
+            else
+                $("#replace-product").html(data);
+    }});
+    return false;
+});
+
+$(".add-payment-link").click(function()
+{
+    var $this = $(this);
+    ajaxifyAddForm();
+    $(".add-payment-payment input[name=invoice_id]").val($this.data('invoice_id'));
+    $(".add-payment-payment select[name=paysys_id]").val($this.data('paysys_id'));
+    var sel = $(".add-payment-payment select[name=amount]");
+    sel.find('option').remove();
+    $.each($this.data('amounts'), (function(k,v){ 
+        var options = sel.prop('options');
+        options[options.length] = new Option(v, v, true, true);
+    }));
+    $(".add-payment-payment").dialog({
+        autoOpen: true
+        ,width: 700
+        ,closeOnEscape: true
+        ,title: "<?php j(___("Add Payment"))?>"
+        ,modal: true
+    });
+});
+
+$("#user-access-info form").live('submit', function(){
+    var frm = $(this);
+    if (!$("input[name='begin_date']", frm).val()) { flashError("Please enter start date"); return false; }
+    if (!$("input[name='expire_date']", frm).val()) { flashError("Please enter expire date"); return false; }
+    if ($("input[name='expire_date']", frm).datepicker('getDate') < $("input[name='begin_date']", frm).datepicker('getDate')) {
+        flashError("Begin date should be before Expire date"); return false;
+    }
+    var btn = $(":submit", frm);
+    btn.attr("disabled", "disabled").val(btn.val() + "...");
+    $("#user-access-info").load(frm.attr("action") + " #user-access-info",
+        frm.serializeArray(), function(){
+            $('input.datepicker').datepicker({
+                defaultDate: window.uiDefaultDate,
+                dateFormat:window.uiDateFormat,
+                changeMonth: true,
+                changeYear: true
+            });
+            $('select[name=product_id]').val('');
+            $('input[name=comment]').val('');
+            initAccessToggle();
+        });
+    return false;
+});
+
+$("#user-access-info a.access-delete").live('click', function(){
+    var id = $(this).attr("id").replace(/^access-delete-/, '');
+    if (!confirm('Really delete?')) return;
+    $("#user-access-info").load(window.rootUrl + "/admin-user-payments/delaccess/user_id/"+window.user_id+" #user-access-info",
+        { id: id }, function(){
+            $('input.datepicker').datepicker({
+                defaultDate: window.uiDefaultDate,
+                dateFormat:window.uiDateFormat,
+                changeMonth: true,
+                changeYear: true
+            });
+        });
+});
+
+function initAccessToggle()
+{
+    $(".user-access-title a").click(function(){
+        var data = $(".user-access-title").toggle().filter(":visible").data('status');
+        $("tr.access").not(data).hide();
+        $(data).show();
+    });
+}
+
+function openInvoiceByHash()
+{
+    var id = window.location.hash.substr(1);
+    $("a[name="+id+"]").next(".user-invoice-header").click();
+}
+
+$("a.invoice-link").live('click', function(){
+    var id = this.href.replace(/.*#/, '');
+    $("a[name="+id+"]").next(".user-invoice-header").click();
+});
+    
+
+initAccessToggle();
+openInvoiceByHash();   
+
+});
+</script>

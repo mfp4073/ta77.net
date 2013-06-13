@@ -1,0 +1,69 @@
+<?php 
+$this->layoutNoTitle = true;
+$this->enableReports();
+$title = $report->getTitle();
+?>
+
+<h1 id='pageTitle'><?php echo $title ?> <a href="<?php $this->pUrl(null, 'index') ?>">Choose another Report</a></h1>
+<div>
+    <h2>Report Settings</h2>
+    <?php
+    echo $form ?>
+    
+</div>
+<?php if (@$reportId) : ?>
+<div class="info" id="save-report-offer"><?php __e('You can %ssave%s this report for future use. You will be able to add this report to your dashboard or send it to your email periodically.',
+    '<a href="javascript:;" id="save-report" data-report-id="' . $this->escape($reportId) . '" data-request="' . $this->escape($serializedRequest) . '">', '</a>') ?></div>
+<?php endif; ?>
+<?php echo $content ?>
+<div style="display:none">
+<div id="save-report-form">
+<?php echo $saveReportForm ?>
+</div>
+</div>
+<script type="text/javascript">
+<!--
+$(function(){
+
+    function saveReport(params, callback) {
+        $.post(window.rootUrl + '/admin-reports/save', params, function(res){
+            callback = callback || function(){};
+            callback(res);
+        })
+    }
+
+    $('#save-report').click(function(){
+        var $this = $(this);
+
+        $('#save-report-form').dialog({
+                autoOpen: true,
+                modal : true,
+                title : "",
+                width : 600,
+                position : ['center', 'center'],
+                buttons: {
+                    "Save" : function() {
+                        saveReport({
+                            'report_id' : $this.data('report-id'),
+                            'request' : $this.data('request'),
+                            'title' : $('#save-report-form input[name=title]').val(),
+                            'add-to-dashboard' : $('#save-report-form input[name=add-to-dashboard]:checked').val()
+                        }, function(res){
+                            if (res.status == 'OK') {
+                                $('#save-report-offer').remove();
+                                $('#save-report-form').dialog("close");
+                            } else {
+                                alert('Error occured, please check Errors Log for clue')
+                            }
+                        })
+
+                    },
+                    "Close" : function() {
+                        $(this).dialog("close");
+                    }
+                } 
+            });   
+    })
+})
+-->
+</script>

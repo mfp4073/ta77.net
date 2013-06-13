@@ -1,0 +1,91 @@
+<?php if ($strategy->isMessageAvalable($message)) : ?>
+<div class="message <?php
+    if ($message->type=='comment') {
+        echo 'comment';
+    } elseif ($strategy->isMessageForReply($message)) {
+        echo 'withReply';
+    } else {
+        echo 'withoutReply';
+    }
+?>" id="helpdesk-message-<?php echo $message->message_id ?>">
+    <div class="header">
+        <div class="actions">
+            [<a href="javascript:;" class="close" title="<?php __e('Close') ?>">&minus;</a>]
+        </div>
+        <span class="author">
+            <?php
+            if ($message->admin_id) {
+                p($strategy->getAdminName($message));
+            } else {
+                p($strategy->getMemberName($message));
+            }
+            ?>
+        </span>
+        <span
+            class="dattm"
+            title="<?php p(amDatetime($message->dattm)) ?>"
+        ><?php p($this->getElapsedTime($message->dattm)) ?></span>
+    </div>
+    <div class="content">
+        <pre><?php echo $this->hyperlinks($this->skip($message->content)) ?></pre>
+        <div class="attachments">
+        <?php foreach ($message->loadGetAttachments() as $upload) : ?>
+        &ndash; <a href="<?php p($strategy->assembleUrl(array(
+                'page_id' => 'view',
+                'action' => 'file',
+                'message_id' => $message->message_id,
+                'id' => $upload->upload_id
+            ), 'inside-pages')) ?>" target="_blank"><?php p($upload->name) ?></a> (<?php p($upload->getSizeReadable()) ?>)<br />
+        <?php endforeach; ?>
+        </div>
+    </div>
+    <div class="actions">
+        <?php if ($message->type == 'comment') : ?>
+        <div>
+            <a href="<?php
+            echo Am_Di::getInstance()->helpdeskStrategy->assembleUrl(array(
+                'page_id' => 'view',
+                'action' => 'reply',
+                'message_id' => $message->message_id,
+                'ticket_id' => $ticket->ticket_id,
+                'type' => 'comment'
+            ), 'inside-pages') ?>" class="a-reply">
+                <?php __e('Edit') ?>
+            </a>
+        </div>
+        <?php elseif ($strategy->isMessageForReply($message)) : ?>
+        <div>
+            <a href="<?php
+            echo Am_Di::getInstance()->helpdeskStrategy->assembleUrl(array(
+                'page_id' => 'view',
+                'action' => 'reply',
+                'message_id' => $message->message_id,
+                'ticket_id' => $ticket->ticket_id,
+                'type' => 'message'
+            ), 'inside-pages') ?>" class="a-reply">
+                <?php __e('Reply') ?>
+            </a>
+        </div>
+        <?php endif; ?>
+    </div>
+    <div class="reply">
+        <?php if ($strategy->canUseSnippets() || $strategy->canUseFaq()) : ?>
+        <div class="reply-tools">
+            <?php if ($strategy->canUseSnippets()): ?>
+            <div>
+                <a href="javascript:;" class="reply-tool-snippets"><?php __e('Snippets') ?></a>
+            </div>
+            <?php endif; ?>
+            <?php if ($strategy->canUseFaq()): ?>
+            <div>
+                <a href="javascript:;" class="reply-tool-faq"><?php __e('FAQ') ?></a>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+        <div class="reply-content">
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+

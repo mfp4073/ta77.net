@@ -1,0 +1,65 @@
+<?php 
+$title=___('Affiliate stats');
+$this->headLink()->appendStylesheet($this->_scriptCss('aff.css'));
+$this->setLayout('member/layout.phtml');
+$this->enableReports();
+?>
+
+<?php $this->placeholder('report')->captureStart() ?>
+<?php echo $report; ?>
+
+<h1>Report</h1>
+<table width="100%" class="hedit">
+<tr>
+    <th class="bold align-right"><?php __e("Date") ?></th>
+    <th class="bold align-right"><?php __e("Commission earned") ?></th>
+    <th class="bold align-right"><?php __e("Clicks") ?></th>
+</tr>
+<?php
+/* @var $result Am_Report_Result */
+$quant = $result->getQuantity()->getId();
+$points = 0;
+$lines = $result->getLines();
+foreach ($result->getPointsWithValues() as $r):
+    $points++;
+    /* @var $r Am_Report_Point */
+    print "<tr>";
+    if ($quant == 'month')
+        $href = $this->url(array("monthyear"=>$r->getKey()));
+    elseif ($di->config->get('aff.affiliate_can_view_details'))
+        $href = "javascript: showAffDetails(\"".$r->getKey()."\")";
+    else
+        $href = "";
+    printf("    <td class='align-right'>%s</td>\n", 
+            $href ? sprintf("<a href='%s'>%s</a>", $this->escape($href), $r->getLabel()) : $r->getLabel());
+    foreach ($lines as $line)
+        printf("    <td class='align-right'>%s</td>\n", $r->getValue($line->getKey()));
+    print "</tr>\n";
+    print "<tr id='detail-".$r->getKey()."' class='aff-details' style='display: none'><td colspan='3'>\n";
+    print "  <div style='float: right; width: 80em'><a href='javascript:' class='detail-close'></a></div>\n";
+    print "  <div class='content'></div>\n";
+    print "</td></tr>\n";
+endforeach;
+?>
+</table>
+
+<?php $this->placeholder('report')->captureEnd();
+if ($points > 0) 
+    echo $this->placeholder('report');
+else
+    echo ___("No records found");
+?>
+
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $("a.detail-close").click(function(){
+        $(this).parents("tr").hide();
+    });
+});
+function showAffDetails(date)
+{
+    var url = "<?php echo j($this->url(array('detailDate'=>'DATE'))) ?>";
+    jQuery("tr#detail-"+date).toggle();
+    jQuery("tr#detail-"+date+":visible .content").load(url.replace(/DATE/, date));
+}
+</script>

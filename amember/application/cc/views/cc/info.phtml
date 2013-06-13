@@ -1,0 +1,20 @@
+<?php $title=___('Payment Info'); $this->setLayout('layout.phtml');
+
+$this->headScript()
+        ->appendFile(REL_ROOT_URL . '/application/default/views/public/js/jquery/jquery.js')
+        ->appendFile(REL_ROOT_URL . '/application/default/views/public/js/jquery/jquery.validate.js');
+?>
+<?php if (!empty($renew_cc)): ?>
+    <?php include $this->_script('member_menu.inc.phtml'); ?>
+<?php endif ?>
+<?php include $this->_script('_error.phtml'); ?>
+
+<?php if (!empty($display_receipt)): ?>
+<?php include $this->_script('_receipt.phtml'); ?>
+<br /><br />
+<?php endif ?>
+
+<?php include $this->_script('_form.phtml');  ?>
+<?php include $this->_script('js.country_state.js'); ?>
+
+

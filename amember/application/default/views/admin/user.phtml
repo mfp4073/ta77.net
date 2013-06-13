@@ -1,0 +1,8 @@
+<?php $this->setLayout('admin/user-layout.phtml'); ?>
+<?php if (isset($form)): ?>
+<h1><?php echo $title ?><?php if ($b): ?>&nbsp;<span class="red"><a href="<?php p($b) ?>">(return)</a></span><?php endif ?></h1>
+    <?php echo $form ?>
+<?php else: ?>
+    <?php echo $grid ?>
+<?php endif ?>
+

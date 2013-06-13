@@ -1,0 +1,70 @@
+<?php
+$plugin_status = $plugin->getStatus();
+$profileName = null;
+if ($plugin_status == Am_Plugin_Facebook::LOGGED_IN)
+{
+    try {
+        $profileName = $plugin->getFbProfile('name');
+    } catch (FacebookApiException $e) { // token expired?
+        $plugin_status = Am_Plugin_Facebook::NOT_LOGGED_IN;
+    }
+}
+?>
+<div id="fb-root"></div>
+<div class="facebook-login-connect" <?php if ($plugin_status != Am_Plugin_Facebook::LOGGED_IN):?>style="display:none"<?php endif ?>><!-- user is logged-in to facebook, connect -->
+    <a href="javascript:" onclick="facebook_login_connect()"><?php echo $plugin->renderConnect() ?></a>
+
+<img src='https://graph.facebook.com/<?php echo $plugin->getFbUid() ?>/picture' 
+    align='left' style='padding-right:1em;'>
+    <?php __e("%s, you've successfully logged in to Facebook.", '<strong>'.$this->escape($profileName).'</strong>') ?> 
+    <span style="color: red">
+    <?php __e('Now please login to your account on our site to complete the link.') ?>
+    </span> 
+    <?php __e("You will only have to do this once. If you don't have an account with us, please %ssignup%s",
+        '<a href="' . $this->escape(REL_ROOT_URL . '/signup' ) . '">', '</a>') ?>
+</div>
+
+<div class="facebook-login-login" <?php if ($plugin_status != Am_Plugin_Facebook::NOT_LOGGED_IN
+    && $plugin_status != Am_Plugin_Facebook::LOGGED_OUT):?>style="display:none"<?php endif ?>><!-- user is not logged-in to facebook, login -->
+    <a href="javascript:" onclick="facebook_login_login()"><?php echo $plugin->renderLogin() ?></a>
+</div>
+<!-- $output = "<p style='margin:1em 0;text-align:center;'><fb:login-button size=\"medium\" perms=\"$fbperms\">$button_txt</fb:login-button></p>";-->
+
+<script type="text/javascript">
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId  : '<?php j($plugin->getConfig('app_id'))?>',
+      status : true, // check login status
+      cookie : true, // enable cookies to allow the server to access the session
+      xfbml  : true,  // parse XFBML
+      channelUrl  : 'http://www.yourdomain.com/channel.html', // Custom Channel URL
+      oauth : true //enables OAuth 2.0
+    });
+    FB.getLoginStatus(function(response){ }); 
+  };
+
+
+
+  jQuery(function(){
+    var e = document.createElement('script');
+    e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
+    e.async = true;
+    document.getElementsByTagName("head")[0].appendChild(e);
+  });
+    
+function facebook_login_login()
+{
+ FB.login(function(response) {
+   if (response.authResponse) {
+       var href = window.location.href;
+       if (href.indexOf('?') < 0)
+           href += '?fb_login=1';
+       else
+           href += '&fb_login=1';
+       window.location.href=href;
+   } else {
+       // cancelled
+   }
+ }, {scope: 'email'});    
+}
+</script>

@@ -1,0 +1,62 @@
+<?php /*This file is included into amember/thanks.html and cc/cc_info.html
+   for displaying of payment receipt information */ ?>
+<div class="receipt">
+    <div class="receipt-content">
+        <table class="receipt-table">
+            <thead>
+            <tr class="receipt-row-head">
+                <th><?php __e('Subscription/Product Title') ?></th>
+                <th style="width: 20%; text-align: right;"><?php __e('Price') ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($invoice->getItems() as $p): ?>
+            <tr>
+                <td><?php p($p->item_title)?></td>
+                <td style="text-align: right">
+                        <?php if ($invoice->first_discount > 0): ?>
+                    <span class="receipt-discounted-price"><?php echo $invoice->getCurrency($p->getFirstSubtotal())?></span>
+                        <?php endif ?>
+                        <?php echo $invoice->getCurrency($p->getFirstTotal()) ?>
+                </td>
+            </tr>
+            <?php endforeach ?>
+            <tr>
+                <td class="total"><strong><?php __e('Subtotal') ?></strong></td>
+                <td class="total" style="text-align: right">
+                    <?php if ($invoice->first_discount > 0): ?>
+                    <span class="receipt-discounted-price"><?php 
+                    echo $invoice->getCurrency($invoice->first_subtotal)?></span>
+                    <strong><?php echo $invoice->getCurrency($invoice->first_subtotal-$invoice->first_discount)?></strong>
+                    <?php else : ?>
+                    <strong><?php echo $invoice->getCurrency($invoice->first_subtotal) ?></strong>
+                    <?php endif ?>
+                </td>
+            </tr>
+            <?php if ($invoice->first_shipping > 0): ?>
+            <tr>
+                <td><?php __e('Shipping') ?></td>
+                <td style="text-align: right"><?php echo $invoice->getCurrency($invoice->first_shipping)?></td>
+            </tr>
+            <?php endif ?>
+            <?php if ($invoice->first_tax > 0): ?>
+            <tr>
+                <td><strong><?php __e('Tax Amount') ?></strong></td>
+                <td style="text-align: right"><strong><?php echo $invoice->getCurrency($invoice->first_tax)?></strong></td>
+            </tr>
+            <?php endif ?>
+            <tr class="receipt-row-total">
+                <td class="total"><strong><?php __e('Total') ?></strong></td>
+                <td class="total" style="text-align: right"><strong><?php echo $invoice->getCurrency($invoice->first_total)?></strong></td>
+            </tr>
+            <tr class="receipt-row-terms">
+                <td colspan="2" class="terms">
+                    <strong><?php __e('Subscription Terms')?></strong>
+                    &nbsp;&nbsp;&nbsp;
+                    <i><?php p(___($invoice->getTerms())); ?></i>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

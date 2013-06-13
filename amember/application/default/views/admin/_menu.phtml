@@ -1,0 +1,99 @@
+<?php
+$menu = $this->adminMenu();
+$menu->setAcl($di->authAdmin->getUser());
+echo $menu->renderMenu($this->di->navigationAdmin);
+
+$menu = $this->adminMenuCollapsed();
+$menu->setAcl($di->authAdmin->getUser());
+echo $menu->renderMenu($this->di->navigationAdmin);
+?>
+<div class="menu-collapse">
+<a href="javascript:;" id="menu-collapse-exapand"><?php __e('Collapse Menu') ?></a>
+</div>
+<script type="text/javascript">
+<!--
+    (function($){$(function(){
+
+        function setCookie(name, value) {
+                var today = new Date();
+                var expiresDate = new Date();
+                expiresDate.setTime(today.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 year
+                document.cookie = name + "=" + escape(value) + "; path=/; expires=" + expiresDate.toGMTString() + ";";
+        }
+
+        function getCookie(name) {
+            var prefix = name + "=";
+            var start = document.cookie.indexOf(prefix);
+            if (start == -1) return null;
+            var end = document.cookie.indexOf(";", start + prefix.length);
+            if (end == -1) end = document.cookie.length;
+            return unescape(document.cookie.substring(start + prefix.length, end));
+        }
+
+        $('li:has(a.folder)', $('.admin-menu-collapsed')).bind('mouseenter', function(){
+            $(this).find('ul').show();
+            $(this).addClass('active');
+            return false;
+        })
+
+        $('li:has(a.folder)', $('.admin-menu-collapsed')).bind('mouseleave', function(){
+            $(this).find('ul').hide();
+            $(this).removeClass('active');
+            return false;
+        })
+
+        $('#menu-collapse-exapand').click(function(){
+            $(this).closest('div').hasClass('menu-collapse') ?
+                $(this).closest('div').removeClass('menu-collapse').addClass('menu-expand') :
+                $(this).closest('div').removeClass('menu-expand').addClass('menu-collapse');
+            $('body').toggleClass('collapsed');
+            $('.admin-menu').toggle();
+            $('.admin-menu-collapsed').toggle();
+            getCookie('am-admin-menu-collapsed') == '1' ?
+                setCookie('am-admin-menu-collapsed', '0') :
+                setCookie('am-admin-menu-collapsed', '1');
+            return false;
+        })
+        if (getCookie('am-admin-menu-collapsed') == '1') {
+            //set initial state
+            $('#menu-collapse-exapand').click();
+            setCookie('am-admin-menu-collapsed', '1');
+        }
+
+    })})(jQuery)
+-->
+</script>
+<div id="admin-login" style="display:none; padding-left: 0; padding-right: 0;">
+    <div class="error"></div>
+    <div class="am-form">
+        <form method="post" action="<?php p(REL_ROOT_URL) ?>/admin-auth">
+                <fieldset>
+                    <div class="row">
+                        <div class="element-title">
+                            <label for="login"><?php __e("Username") ?></label>
+                        </div>
+                        <div class="element">
+                            <input type="text" id="login" name="login" size="18" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="element-title">
+                            <label for="pass"><?php __e("Password") ?></label>
+                        </div>
+                        <div class="element">
+                            <input type="password" id="pass" name="passwd" size="18" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="element-title"></div>
+                        <div class="element">
+                            <input type=hidden name=do_login value=1>
+                            <input type=submit value="<?php __e("Log In")?>">
+                        </div>
+                    </div>
+                </fieldset>
+        </form>
+    </div>
+</div>

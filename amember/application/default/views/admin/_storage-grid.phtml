@@ -1,0 +1,103 @@
+<div class="tabs">
+    <ul>
+    <?php foreach ($this->plugins as $id => $pl):?>
+        <li class="<?php echo ($id == $active_plugin) ? 'active' : 'normal'; ?>">
+            <a class="filesmanager-storage" href="javascript:" data-href="<?php p($pl->link) ?>"><?php p($pl->title) ?></a>
+        </li>
+    <?php endforeach?>
+    </ul>
+</div>
+
+<div class="warning_box">
+    <?php p($description)?>
+    <?php if (!empty($refresh)):?>
+        <a class="filesmanager-refresh" href="javascript:" data-href="<?php p($refresh->_link) ?>"><?php __e('Refresh')?></a>
+    <?php endif ?>     
+    <?php if (!empty($upload)):?>
+        <a class="filesmanager-upload" href="javascript:"><?php __e('Upload')?></a>
+        <input type="hidden" value="<?php p($upload->render()); ?>" id="filesmanager-upload-code"/>
+    <?php endif ?>
+    <?php if (!empty($createfolder)):?>
+        <a class="filesmanager-createfolder" href="javascript:" data-href="<?php p($upload->_link) ?>"><?php __e('Create Folder')?></a>
+    <?php endif ?>
+</div>
+
+<?php //$this->setLayout('admin/layout.phtml'); $title = ___("Files"); ?>
+<div class="grid-container">
+    <table class="grid">
+        <tr>
+            <th><?php __e('Name') ?></th>
+            <th><?php __e('Size') ?></th>
+            <th><?php __e('Description') ?></th>
+            <?php if (!empty($deletefile)) : ?>
+            <th><?php __e('Actions') ?></th>
+            <?php endif; ?>
+        </tr>
+        <?php foreach ($items as $item): /* @var Am_Storage_Item $item */ ?>
+        <tr>
+            <?php if ($item instanceof Am_Storage_Folder): ?>
+                <td colspan="2">
+                    <b><a href="javascript:" class="filesmanager-folder"
+                       data-href="<?php p($item->_link)?>"><?php echo $item->getName() ?></a></b></td>
+            <?php else: ?>
+                <td><a href="javascript:" class="filesmanager-file"
+                       data-info="<?php p(Am_Controller::getJson($item->_data_info))?>"><?php echo $item->getName() ?></a></td>
+                <td align="right"><?php echo $item->getSizeReadable($item->getSize()) ?></td>
+            <?php endif ?>
+                <td><?php echo $item->getDescription() ?></td>
+            <?php if (!empty($deletefile)) : ?>
+                <td width="1%">
+                    <?php if ($item instanceof Am_Storage_File): ?>
+                    <a class="filesmanager-delete" href="<?php p(str_replace("__PATH__", $item->getPath(), $deletefile->_link)) ?>"><?php echo $this->icon('delete', ___('Delete')) ?></a>
+                    <?php endif; ?>
+                </td>
+            <?php endif; ?>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+</div>
+<script type="text/javascript">
+    window.storageCurrentUrl = <?php echo Am_Controller::getJson($currentUrl) ?>;
+    
+    $('.filesmanager-file').die().live('click', function(){
+        $(this).closest('.filesmanager-container').get(0).uploader.
+        upload('addFile', $(this).data('info'));
+        $(this).closest('.filesmanager-container').dialog('close');
+    });
+    
+    $('.filesmanager-refresh, .filesmanager-storage, .filesmanager-folder').die().live('click', function(){
+        $(this).closest('.filesmanager-container').load($(this).data('href'));
+    });
+
+    $('.filesmanager-delete').die().live('click', function(){
+        $(this).closest('.filesmanager-container').load($(this).attr('href'));
+        return false;
+    })
+    
+    $('.filesmanager-upload').die().live('click', function(){
+        
+        $(".filesmanager-upload-div").remove();
+        var $div = $('<div id="filesmanager-upload-div">');
+        $div.html($('#filesmanager-upload-code').val());
+        $(window).append($div);
+        
+        $div.find('form').ajaxForm({
+            beforeSubmit : function(arr, $form, options){
+                return true;
+            },
+            error: function(xhr, statusText, error)
+            {
+            },
+            success : function(responseXml, statusText, xhr) {
+            }
+        });
+        
+        $div.dialog({
+            modal: true,
+            width: 400,
+            height: 400,
+            title: "Upload"
+        });
+        
+    });
+</script>

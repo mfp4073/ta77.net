@@ -1,0 +1,80 @@
+<div class="am-layout-two-coll">
+    <div class="am-layout-two-coll-top"></div>
+    <div class="am-coll-left">
+        <div class="am-coll-content">
+            <?php echo $this->blocks('login/form/before') ?>
+            <div class="am-form am-login-form">
+                <form name="login" method="post" <?php if ($form_action) echo "action='$form_action'"; ?>>
+                    <fieldset>
+                        <legend>&nbsp;&nbsp;<?php __e('Member Login') ?></legend>
+                        <div class="row" id="recaptcha-row" style="<?php if (empty($recaptcha)): ?>display: none;<?php endif?>" data-recaptcha-theme="<?php echo Am_Di::getInstance()->config->get('recaptcha-theme', 'clean');?>">
+                            <div class="element-title" style="display:none;"></div>
+                            <div class="element" style="margin-left:0; padding:0" id="recaptcha-element">
+                                <?php echo @$recaptcha ?>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="element-title">
+                                <label class="element-title" for="login"><?php __e('E-Mail Address or Username') ?></label>
+                            </div>
+                            <div class="element">
+                                <input type="text" id="login" name="amember_login" size="15" value="<?php p(@$_REQUEST['amember_login']) ?>" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="element-title">
+                                <label class="element-title" for="pass"><?php __e('Password') ?></label>
+                            </div>
+                            <div class="element">
+                                <input type="password" id="pass" name="amember_pass" size="15" />
+                            </div>
+                        </div>
+                        <?php if (@$this_config['remember_login'] && !@$this_config['remember_auto']): ?>
+                        <div class="row">
+                            <div class="element-title">
+                                <label class="element-title" for="remember"><?php __e('Remember my password?') ?></label>
+                            </div>
+                            <div class="element">
+                                <input type="checkbox" name="remember_login" value="1"<?php if (@$_REQUEST['remember_login']): ?>checked="checked"<?php endif ?>>
+                            </div>
+                        </div>
+                        <?php endif ?>
+                        <div class="row">
+                            <div class="element-title"></div>
+                            <div class="element" style="vertical-align: baseline">
+                                <input type="submit" value="<?php __e('Login') ?>" />
+                            </div>
+                        </div>
+                    </fieldset>
+                    <!-- hidden variables -->
+                    <?php echo Am_Controller::renderArrayAsInputHiddens($hidden) ?>
+                    <!-- end of hidden -->
+                </form>
+            </div>
+            <?php echo $this->blocks('login/form/after') ?>
+        </div>
+    </div>
+    <div class="am-coll-right">
+        <div class="am-coll-content">
+            <div class="am-form am-sendpass-form">
+                <form name="sendpass" method="post" action="<?php echo REL_ROOT_URL ?>/sendpass">
+                    <fieldset>
+                        <legend>&nbsp;&nbsp;<?php __e('Lost password') ?>?</legend>
+                        <div class="row">
+                            <div class="element-title">
+                                <label for="sendpass"><?php __e('Enter your <b>E-Mail Address</b> or <b>Username</b>') ?></label>
+                            </div>
+                            <div class="element"><input type="text" name="login" id="sendpass" size="15" /></div>
+                        </div>
+                        <div class="row">
+                            <div class="element">
+                                <input type="submit" value="<?php __e('Get Password') ?>" />
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+<div class="am-layout-two-coll-bottom"></div>
+</div>

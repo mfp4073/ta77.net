@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" >
+        <title><?php p(strip_tags(empty($this->layoutNoTitle) ? $title : 'aMember PRO')) ?></title>
+        <?php
+        echo $this->placeholder("head-start");
+        $admin_logged_in = Am_Di::getInstance()->authAdmin->getUserId() > 0;
+        $admin_login = Am_Di::getInstance()->authAdmin->getUsername();
+        $this->adminHeadInit();
+        echo $this->headLink() . "\n";
+        echo $this->headStyle() . "\n";
+        echo $this->headScript() . "\n";
+        echo $this->placeholder("head-finish");
+        ?>
+    </head>
+    <?php echo $this->placeholder('head-finish'); ?>
+    <body>
+        <?php echo $this->placeholder('body-start'); ?>
+        
+        
+        <?php if ($di->config->get('maintenance')): //maint.mode warning ?>
+        <div class="maint-mode-warning">
+        <?php __e('Maintenance mode is currently enabled. Only logged-in administrators like you can access it. %sDisable%s',
+            '<a href="'.$this->escape(REL_ROOT_URL).'/admin-setup/advanced">', '</a>'
+            ); ?>
+        </div>
+        <?php endif; //maint.mode warning ?>
+        
+        <div class="layout">
+            <a name="top"></a>
+            <div id="header">
+                <div class="ajax-loading">
+                        <img src="<?php echo $this->_scriptImg('ajax-loading.gif') ?>" /> <?php __e('Loading') ?>&hellip;
+                </div>
+                <div class="header-right">
+                    <div class="lookup-block">
+                        <div class="input-lookup">
+                            <form method="get" action="<?php echo REL_ROOT_URL ?>/admin-users/index">
+                                <input class="input-lookup-button" type="submit" value="<?php __e('Lookup')?>" />
+                                <div class="input-lookup-input">
+                                        <div class="input-lookup-empty">X</div>
+                                        <input class="lookup" type="text" id="user-lookup" name="_u_filter" id="q" size="20" 
+                                               placeholder="<?php __e('login, email or name')?>" />
+                                </div>
+                            </form>
+                        </div>    
+                        <script type="text/javascript">
+                        <!--
+                        
+                        $('.input-lookup-input .input-lookup-empty').click(function(){
+                            $('.input-lookup-input input').val('');
+                            $(this).hide();
+                        })
+                        
+                        $('.input-lookup-input input').bind('keyup change', function(){
+                           $(this).val().length ? 
+                                $('.input-lookup-input .input-lookup-empty').show() :
+                                $('.input-lookup-input .input-lookup-empty').hide(); 
+                        })
+                        $('.input-lookup-button').bind('mouseover mouseout', function(){
+                            $('.input-lookup').toggleClass('hover');
+                        })
+                        -->
+                        </script>
+                    </div>
+                    <div class="user-identity-block">
+                        <?php __e('Logged in as %s', $this->escape($admin_login)); ?>. 
+                        <a href="<?php echo REL_ROOT_URL ?>/admin-auth/logout"><?php __e('Logout')?></a>
+                        <!-- switch language -->
+                        <?php if ($di->config->get('lang.display_choice')): ?>
+                        <?php include $this->_script('admin/_lang-choice.phtml'); ?>
+                        <?php endif ?>
+                        <!-- end of switch language -->
+                    </div>
+                </div>
+                <div class="logo-block">
+                    <a href="<?php echo REL_ROOT_URL ?>/admin/">
+                        <img src="<?php echo $this->_scriptImg('admin/header-logo.png') ?>" width="118" height="15" alt="aMember Pro" />
+                    </a>
+                </div>
+            </div>
+            <div class="layout-two-coll">
+                <div class="coll-left">
+                    <div class="spacer-first"></div>
+                    <div class="spacer-second"></div>
+                    <div class="menu-wrapper">
+                        <?php include $this->_script("admin/_menu.phtml"); ?>
+                    </div>
+                </div>
+                <div class="coll-right">
+                    <div class="spacer-first"></div>
+                    <div class="spacer-second"></div>
+                    <div class="content">
+                        <?php if (empty($this->layoutNoTitle)): ?>
+                            <!-- title starts here -->
+                            <h1 id='pageTitle'><?php echo $title ?></h1>
+                            <!-- title starts here -->
+                        <?php endif ?>
+                        <?php echo $this->placeholder('before-content'); ?>
+                        <!-- content starts here -->
+                        <?php echo $content ?>
+                        <!-- content ends here -->
+
+                        <?php echo $this->placeholder('after-content'); ?>
+                    </div>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div id="footer">
+            <div class="footer-content">
+                <div class="footer-actions">
+                    <a href="#top"><img src="<?php echo $this->_scriptImg('admin/top.png') ?>" /></a>
+                </div>
+                aMember Pro&trade; <?php echo AM_VERSION ?> by <a href="http://www.amember.com">aMember.com</a>  &copy; 2002&ndash;<?php echo date('Y') ?> CGI-Central.Net
+                &nbsp;&nbsp;&nbsp;<a style='color: #888' href="http://twitter.com/mikomagni" target="_blank">admin theme by Miko Magni</a>
+                &nbsp;&nbsp;&nbsp;<a style='color: #888' href="http://www.famfamfam.com/lab/icons/silk/" target="_blank">uses FamFamFam Icons Set</a>
+            </div>
+        </div>
+        <?php echo $this->placeholder('body-finish'); ?>
+    </body>
+</html>

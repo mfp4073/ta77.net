@@ -1,0 +1,80 @@
+<table_data name="email_template">
+    <row type="email_template">
+        <field name="name">aff.registration_mail</field>
+        <field name="lang">en</field>
+        <field name="format">text</field>
+        <field name="subject">%site_title% Affiliate Program Registration</field>
+        <field name="txt">Dear %user.name_f% %user.name_l%,
+
+Thank you for registration on %site_title% affiliate program!
+
+   Your User ID: %user.login% 
+   Your Password: %password%
+
+Log-on to your affiliate pages at:
+%root_url%/member/aff
+
+--
+Best Regards,
+%site_title%
+%root_url%
+        </field>
+    </row>
+    <row type="email_template">
+        <field name="name">aff.mail_sale_admin</field>
+        <field name="lang">en</field>
+        <field name="format">text</field>
+        <field name="subject">** Affiliate Commission</field>
+        <field name="txt">Dear admin,
+
+New sale has been made with using of affiliate link.
+You may find sale details below:
+
+----
+Affilate: %affiliate.user_id% / %affiliate.login% / %affiliate.email% 
+          %affiliate.name_f% %affiliate.name_l% / %affiliate.remote_addr%
+New Member: %user.user_id% / %user.login% / %user.email% 
+          %user.name_f% %user.name_l% / %user.remote_addr%
+Payment REF: %payment.payment_id%
+Total:       %payment.amount%
+Product ordered: %product.title%
+Commission paid: %commission%
+----
+
+        </field>
+    </row>
+    <row type="email_template">
+        <field name="name">aff.mail_sale_user</field>
+        <field name="lang">en</field>
+        <field name="format">text</field>
+        <field name="subject">** Affiliate Sale</field>
+        <field name="txt">Dear %affiliate.name_f% %affiliate.name_l%,
+
+New sale has been made by your affiliate link and 
+commission credited to your balance. You may find 
+sale details below:
+
+----
+Payment REF: %payment.invoice_payment_id%
+Total:       %payment.amount%
+Product ordered: %product.title%
+Your commission: %commission%
+----
+
+        </field>
+    </row>
+    <row type="email_template">
+        <field name="name">aff.new_payouts</field>
+        <field name="lang">en</field>
+        <field name="format">text</field>
+        <field name="subject">** Affiliate Payout ToDo</field>
+        <field name="txt">Dear Admin,
+
+New payouts were generated for you affiliates. Please visit
+%url%
+to pay earnings.
+----
+Your aMember Pro installation
+        </field>
+    </row>
+</table_data>

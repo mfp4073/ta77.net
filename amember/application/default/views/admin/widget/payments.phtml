@@ -1,0 +1,33 @@
+<?php $lastPaymentsList = Am_Di::getInstance()->invoicePaymentTable->selectLast($num); ?>
+<div class="admin-lastusers">
+    <h2><?php __e("Last %s Payments", $num); ?></h2>
+    <div class="grid-container">
+        <table class="grid">
+            <tr>
+                <th class="helper-corner-left"><?php __e('Date/Time') ?></th>
+                <th><?php __e('Invoice') ?></th>
+                <th><?php __e('Receipt') ?></th>
+                <th><?php __e('Items') ?></th>
+                <th><?php __e('Amount') ?></th>
+                <th class="helper-corner-right"><?php __e('User') ?></th>
+            </tr>
+            <?php foreach ($lastPaymentsList as $p): ?>
+            <tr<?php
+            if (@$rownum++% 2)
+            {
+            echo ' class="odd" ';
+            }
+            ?>>
+                <td><?php p(amDatetime($p->dattm)) ?></td>
+                <td><a href="<?php echo REL_ROOT_URL ?>/admin-user-payments/index/user_id/<?php p($p->user_id) ?>#invoice-<?php p($p->invoice_id) ?>" target="_blank"><?php p($p->invoice_id) ?></a></td>
+                <td><?php p($p->receipt_id) ?></td>
+                <td><?php p($p->items) ?></td>
+                <td><?php p(Am_Currency::render($p->amount)) ?></td>
+                <td><?php p($p->name) ?>
+                    (<a target="_top" href="<?php echo $this->userUrl($p->user_id) ?>"><?php p($p->login) ?></a>)<br />
+                    <strong><?php p($p->email) ?></strong></td>
+            </tr>
+            <?php endforeach ?>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+<?php
+if (empty($title)) $title = ___("Shopping Cart");
+$this->setLayout('layout.phtml');
+$this->headLink()->appendStylesheet($this->_scriptCss('cart.css'));
+$this->headScript()
+        ->appendFile(REL_ROOT_URL . '/application/default/views/public/js/jquery/jquery.js')
+        ->appendFile($this->_scriptJs('cart.js'));
+?>
+<div class="am-cart">
+<?php if(!empty($category)) : ?>
+<h2><?php echo $category->description;?></h2>
+<?php endif;?>
+<?php if (count($this->productCategoryOptions)>1): ?>
+<div class="am-cart-header">
+    <div style="text-align:left" id="category-select">
+    <form method="get">
+    <select id="product-category" name="c" size="1"><?php echo $this->formOptions($this->productCategoryOptions, @$_REQUEST['c']) ?></select>
+    </form>
+    </div>
+</div>
+<?php endif ?>
+
+<div class="am-cart-content">
+    <div>
+<?php include $this->_script('_error.phtml'); ?>
+<?php echo $content ?>
+    </div>
+</div>
+   
+<div class="am-cart-navigation">
+<?php // output blocks enveloped into a <div>
+    echo $this->blocks('cart/right', '<h2>%2$s</h2><div class="am-block block">%1$s</div>');
+?>
+</div><!-- div#navigation -->
+
+<br clear="all"/>
+</div><!-- div#cart -->

@@ -1,0 +1,60 @@
+<?php $title="Disclaimer of Credit Card Recurring Billing"; $this->setLayout('admin/layout.phtml'); ?>
+
+<div style="
+margin-left: 30px;
+width:80%;
+height:400px;
+background-color:#ffffff;
+overflow:auto;
+border: solid 1px gray;">
+
+<p>Several plugins have been enabled that utilize recurring credit card 
+billing. As such, it is necessary to understand the related risks and liability.</p>
+
+<p>Enabling <b>recurring</b> billing with these credit card plugins will result in active customers' credit 
+card info (excluding CVV2 code, which is never saved) being stored in your MySQL database.
+(if you do not enable recurring billing in product settings, no credit card
+info will be stored).
+</p>
+
+<p>Utilizing shared webhosting results in an increased and serious risk that this information will be 
+stolen. If you decide to use these plugins with recurring billing, you are strongly urged to acquire 
+a dedicated webserver and hire a professional Unix administrator who will be able to set up a 
+secure enviroment for credit card billing.</p>
+
+<p>Utilizing shared webhosting also results in the serious risk that aMember PHP code 
+will be edited. This will enable an unauthorized user to re-send credit card numbers (i.e., steal the information). As such, 
+we strongly recommend that you not use shared hostings in conjunction with these plugins.</p>
+
+<p>Processing credit card transactions on your website 
+requires an SSL certificate (to get "https://" URL) that is configured 
+to a Member Pro (aMember CP -> Setup -> Secure Root URL). It is your responsibility 
+to ensure that all clients are submitting their credit card information via a secured connection.</p>
+
+<p>Most importantly, your credit card processing setup must 
+comply with PCI DSS policy (see <a href="http://en.wikipedia.org/wiki/PCI_DSS" target="_blank">this link</a> for
+ more information about PCI DSS). In addition, all users should contact their individual 
+merchant account providers for more information about their requirements 
+regarding PCI compilance. The failure to meet and maintain PCI compilance on your website will result in serious and substantial fines from credit card services (e.g., Visa and MasterCard) if 
+customers' saved credit card information is stolen. As individual merchant account providers vary in their requirements, the user is responsible for contacting the providers for more details. In the case 
+that PCI compliance in not attainable, to the user should 
+switch to a payment processor that handles recurring credit card transactions 
+internally (e.g., PayPal or 2Checkout.com).
+
+The notices herein are not unique to Member Pro; they affect any and all custom 
+or mass-selling server-side script that conducts credit card billing.
+</div>
+
+<div style='padding-left: 30px; font-size: 120%;'>
+<br />
+<a href="index.php?agreed_cc_warning=1"><b>I have read and understand this Disclaimer</b></a>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="index.php?agreed_cc_warning=0"><b>I will read it Later</b></a>
+</div>
+
+
+
+

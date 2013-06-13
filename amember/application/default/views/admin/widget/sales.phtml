@@ -1,0 +1,42 @@
+<h2><?php p($reportTitle) ?></h2>
+<table class="admin-dashboard">
+    <tr>
+        <td class="first">
+            <?php list($count, $amount) = $controller->getSalesStats($start, $stop); ?>
+            <dl>
+                <dt><?php __e("Total Sales") ?></dt>
+                <dd><?php echo $count; ?></dd>
+            </dl>
+            <dl>
+                <dt><?php __e("Sales Amount") ?></dt>
+                <dd><?php echo Am_Currency::render($amount); ?></dd>
+            </dl>
+            <?php if (Am_Di::getInstance()->modules->isEnabled('aff')): ?>
+                <dl>
+                    <dt><?php __e("Affiliate Commission") ?></dt>
+                    <dd><?php echo moneyRound(Am_Di::getInstance()->affCommissionTable->getStats($start, $stop)); ?></dd>
+                </dl>
+            <?php endif ?>
+            </td>
+            <td>
+                <dl>
+                    <dt><?php __e("Signups") ?></dt>
+                    <dd><?php echo $controller->getSignupsCount($start, $stop) ?></dd>
+                </dl>
+                <dl>
+                    <dt><?php __e("Cancellations") ?></dt>
+                    <dd><?php echo $controller->getCancelsStats($start, $stop) ?></dd>
+                </dl>
+                <dl>
+                    <dt><?php __e("Rebills Next 30 days") ?></dt>
+                    <dd><?php
+                    $rebills = $controller->getPlannedRebills(
+                        date('Y-m-d 00:00:00', strtotime('now')),
+                        date('Y-m-d 23:59:59', strtotime('+30 days', strtotime('now'))));
+                    $rebills[1] = Am_Currency::render($rebills[1]);
+                echo join(' / ', $rebills);
+            ?></dd>
+            </dl>
+        </td>
+    </tr>
+</table>

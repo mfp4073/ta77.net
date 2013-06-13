@@ -1,0 +1,8 @@
+<?php $title=___('Please login');
+$this->setLayout('layout.phtml'); ?>
+<?php include $this->_script('_error.phtml'); ?>
+<?php $noInitAjaxForm = true; ?>
+<?php include $this->_script('_login.phtml'); ?>
+<br />
+<p style="text-align:center"><?php __e('Not registered yet?') ?> <a href="<?php echo REL_ROOT_URL ?>/signup/index/c/<?php p(@$hidden['saved_form']) ?>"><?php __e('Signup here') ?></a></p>
+<br />

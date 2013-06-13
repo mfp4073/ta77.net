@@ -1,0 +1,27 @@
+<?php $lastUsersList = Am_Di::getInstance()->userTable->selectLast($num); ?>
+<div class="admin-lastusers">
+    <h2><?php __e("Last %s Customers", $num); ?></h2>
+    <div class="grid-container">
+        <table class="grid">
+            <tr>
+                <th class="helper-corner-left"><?php __e('User') ?></th>
+                <th><?php __e('Added') ?></th>
+                <th class="helper-corner-right"><?php __e('Paid') ?></th>
+            </tr>
+            <?php foreach ($lastUsersList as $u): ?>
+            <tr<?php
+            if (@$rownum++% 2)
+            {
+            echo ' class="odd" ';
+            }
+            ?>>
+                <td><?php p($u->getName()) ?>
+                    (<a target="_top" href="<?php echo $this->userUrl($u->user_id) ?>"><?php p($u->login) ?></a>)<br />
+                    <strong><?php p($u->email) ?></strong></td>
+                <td><?php echo amDatetime($u->added) ?></td>
+                <td><?php echo $u->paid ? (Am_Currency::render($u->paid)) : ''; ?></td>
+            </tr>
+            <?php endforeach ?>
+        </table>
+    </div>
+</div>
